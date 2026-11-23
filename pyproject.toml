@@ -22,6 +22,7 @@ deep = ["torch>=2.3"]
 
 [project.scripts]
 ensemble-b0 = "ensemble_learning.cli:main"
+ensemble-walk-forward = "ensemble_learning.cli:walk_forward_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
