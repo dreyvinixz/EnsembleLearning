@@ -4,9 +4,9 @@
 - Validador CSV explícito para rótulos **binários 0/1** (uma escolha de execução, **não** afirmação sobre o contrato real do B0).
 - Timestamp de decisão, disponibilidade mais recente dos atributos e intervalos informacionais completos por rótulo.
 - Holdout por sessões inteiras, partição igual para todos os ativos e purge conservador usando o instante mais tardio de confirmação entre 5/10/15m.
-- Independent Logistic Regression para cada horizonte; imputação e normalização treinadas apenas no conjunto TRAIN.
+- Independent Logistic Regression, Random Forest e HistGradientBoosting por horizonte; imputação treinada apenas em TRAIN (normalização na regressão logística).
 - Acurácia, balanced accuracy, F1 binário, MCC, log loss e Brier; hash SHA-256 da fonte e relatório JSON.
-- Arquiteturas PyTorch independentes e multitarefa GRU definidas, **sem** treinador, sem resultados e sem alegação de causalidade.
+- Arquiteturas PyTorch independentes e multitarefa para **MLP, 1D-CNN, LSTM e GRU** definidas, **sem** treinador, sem resultados e sem alegação de causalidade.
 
 ## CSV de entrada — somente snapshots auditados
 Colunas obrigatórias: instrument, session_date, decision_time, features_available_at,
@@ -31,7 +31,7 @@ foi usada em testes sintéticos apenas para testar o software.
 ## Primeira execução (validação, sem tocar no teste)
     python -m pip install -e ".[dev]"
     pytest -q
-    ensemble-b0 --csv data/approved_snapshot.csv --validation-sessions 20 --test-sessions 20 --output results/baseline_v1.json
+    ensemble-b0 --csv data/approved_snapshot.csv --model logreg --validation-sessions 20 --test-sessions 20 --output results/baseline_v1.json
 
 O comando só funciona depois que o arquivo de entrada for gerado com proveniência,
 regras e classes verificadas. Os resultados do TEST não são computados por padrão.
@@ -44,7 +44,16 @@ o controle científico depende de revisão e disciplina experimental.
 1. Extrator versionado BovDB/QuantBase de leitura apenas e manifesto de proveniência.
 2. Congelar o B0 efetivo, intervalo informacional e ground truth independente.
 3. Determinar divisão walk-forward além deste primeiro holdout e orçamento por método.
-4. Gerador de sequências estritamente causais e treino MLP/GRU independente/MTL.
+4. Gerador de sequências estritamente causais e treino MLP/1D-CNN/LSTM/GRU independente/MTL.
 5. Seed ensemble, block bagging, Stacking OOF, análise de discordância e PCGrad.
 6. Investigar DAME somente após evidência e revisão de originalidade.
 7. Calibração, inferência pareada por pregão, ablações e robustez externa.
+
+
+## Modelos disponíveis
+CLI --model aceita logreg, random_forest e hist_gradient_boosting. Todos
+são baselines exploratórios de validação; os hiperparâmetros são provisórios.
+A matriz de arquiteturas está em experiments/architecture-matrix.csv.
+Para importar modelos neurais com PyTorch, instalar o extra [deep].
+Esses modelos só possuem forward pass, sem treino ou validação científica.
+SVM permanece planejado até ser definida calibração probabilística temporal.
