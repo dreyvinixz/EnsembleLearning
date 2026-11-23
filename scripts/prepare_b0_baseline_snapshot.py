@@ -73,11 +73,12 @@ def make_snapshot(market: pd.DataFrame, labels: pd.DataFrame) -> pd.DataFrame:
     eligible = np.zeros(len(frame), dtype=bool)
     for _, indexes in frame.groupby(group_keys, sort=False, observed=True).groups.items():
         positions = np.asarray(list(indexes), dtype=int)
-        starts = frame.loc[positions, "candle_start_local"].astype("int64").to_numpy()
+        starts = frame.loc[positions, "candle_start_local"].to_numpy(dtype="datetime64[ns]").astype("int64")
         left = np.searchsorted(starts, starts - 59 * 60 * 1_000_000_000, side="left")
         # Current candle is included: its start is one minute before decision.
         counts = np.arange(len(starts)) + 1 - left
-        eligible[positions] = counts >= 48
+        full_window = frame.loc[positions, "candle_start_local"].dt.hour.ge(10).to_numpy()
+        eligible[positions] = (counts >= 48) & full_window
     frame["_coverage_80"] = eligible
 
     frame["decision_time"] = frame["candle_start_local"] + pd.Timedelta(minutes=1)
@@ -130,7 +131,9 @@ def main() -> int:
     labels = pd.read_parquet(labels_path)
     snapshot = make_snapshot(market, labels)
     output.parent.mkdir(parents=True, exist_ok=True)
-    snapshot.to_csv(output, index=False, date_format="%Y-%m-%dT%H:%M:%S%z")
+    for column in snapshot.select_dtypes(include=["datetimetz"]).columns:
+        snapshot[column] = snapshot[column].map(lambda timestamp: timestamp.isoformat())
+    snapshot.to_csv(output, index=False)
     summary = {
         "snapshot": output.name,
         "snapshot_sha256": sha256(output),
@@ -147,7 +150,7 @@ def main() -> int:
         "label_information_interval": "Conservative whole session, 09:00 through 18:01 America/Sao_Paulo.",
         "simulated_label_release": "18:02 America/Sao_Paulo, after the latest possible candle close; processing latency/finalization is an explicit simulation assumption, not historically observed.",
         "feature_policy": "Causal lag/rolling OHLCV features reset for each contract-session; no future bars, labels, SIDEWAYS, trend_mean, or segment endpoints.",
-        "test_policy": "Last 20 unique session dates reserved; not evaluated in the pilot.",
+        "test_policy": "January-April train, May validation, June reserved as final test.",
         "source_manifest": str((BASE / "manifest.json").relative_to(ROOT)),
     }
     manifest_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -13,14 +13,12 @@ import pandas as pd
 from ensemble_learning import __version__
 from ensemble_learning.baselines import run_independent_logreg
 from ensemble_learning.contracts import validate_frame
-from ensemble_learning.splits import chronological_holdout
+from ensemble_learning.splits import dated_holdout
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Audited independent BovDB baseline")
     parser.add_argument("--csv", type=Path, required=True, help="Approved snapshot, no DB writes")
-    parser.add_argument("--validation-sessions", type=int, required=True)
-    parser.add_argument("--test-sessions", type=int, required=True)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--output", type=Path, default=Path("results/independent_logreg.json"))
     parser.add_argument("--evaluate-test", action="store_true", help="One-time final holdout evaluation")
@@ -31,11 +29,9 @@ def main(argv: list[str] | None = None) -> int:
     raw = args.csv.read_bytes()
     data_hash = hashlib.sha256(raw).hexdigest()
     frame = validate_frame(pd.read_csv(args.csv))
-    split = chronological_holdout(
-        frame,
-        validation_sessions=args.validation_sessions,
-        test_sessions=args.test_sessions,
-    )
+    split = dated_holdout(frame)
+    if args.evaluate_test and split.test.empty:
+        parser.error("Final test evaluation requires June data")
     outcome = run_independent_logreg(
         split, seed=args.seed, evaluate_test=args.evaluate_test
     )

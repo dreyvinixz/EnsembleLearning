@@ -62,3 +62,29 @@ def chronological_holdout(
         validation_sessions=val_sessions,
         test_sessions=test_sessions_seq,
     )
+
+
+def dated_holdout(df: pd.DataFrame) -> TemporalHoldout:
+    """2026 fixed calendar partitions, with whole-session availability purge."""
+    dates = df["session_date"].astype(str)
+    train_raw = df.loc[dates.between("2026-01-01", "2026-04-30")].copy()
+    val_raw = df.loc[dates.between("2026-05-01", "2026-05-31")].copy()
+    test = df.loc[dates.between("2026-06-01", "2026-06-30")].copy()
+    if len(train_raw) + len(val_raw) + len(test) != len(df):
+        raise ValueError("Rows outside the declared January–June 2026 boundaries")
+    if train_raw.empty or val_raw.empty:
+        raise ValueError("Training and validation must both contain data")
+    # Boundary is the start of the next calendar month in B3 time, independent
+    # of the dates present in the dataset or whether the test labels are loaded.
+    validation_start = pd.Timestamp("2026-05-01T00:00:00-03:00")
+    test_start = pd.Timestamp("2026-06-01T00:00:00-03:00")
+    train = train_raw.loc[latest_label_confirmation(train_raw) < validation_start].copy()
+    validation = val_raw.loc[latest_label_confirmation(val_raw) < test_start].copy()
+    if train.empty or validation.empty:
+        raise ValueError("Purging removed an entire development split")
+    return TemporalHoldout(
+        train, validation, test, len(train_raw) - len(train), len(val_raw) - len(validation),
+        tuple(sorted(train_raw.session_date.unique())),
+        tuple(sorted(val_raw.session_date.unique())),
+        tuple(sorted(test.session_date.unique())),
+    )
