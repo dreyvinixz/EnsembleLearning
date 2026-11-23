@@ -7,7 +7,6 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 SPEC = importlib.util.spec_from_file_location(
@@ -33,7 +32,7 @@ def test_feature_taxonomy_is_disjoint_exhaustive_and_matches_21_current_features
         "returns": 5, "candles_price_shape": 4, "volatility": 4,
         "trend_vs_sma": 4, "volume_activity": 4,
     }
-    assert sorted(sum(groups.values(), [])) == sorted(names)
+    assert sorted(name for features in groups.values() for name in features) == sorted(names)
 
 
 def test_feature_taxonomy_rejects_unclassified_future_features():
