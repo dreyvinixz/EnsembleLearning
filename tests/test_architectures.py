@@ -2,7 +2,7 @@
 import pytest
 
 torch = pytest.importorskip("torch")
-from ensemble_learning.sequence_models import (  # noqa: I001
+from ensemble_learning.sequence_models import (
     IndependentSequenceClassifier,
     MultiTaskSequenceClassifier,
     NEURAL_ARCHITECTURES,
