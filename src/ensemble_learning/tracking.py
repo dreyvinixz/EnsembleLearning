@@ -2,21 +2,30 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import json
+import os
 import platform
 import subprocess
 import time
 import uuid
-import importlib.metadata
-import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import (accuracy_score, average_precision_score, balanced_accuracy_score,
-    brier_score_loss, confusion_matrix, f1_score, log_loss, matthews_corrcoef,
-    precision_recall_fscore_support, roc_auc_score)
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    balanced_accuracy_score,
+    brier_score_loss,
+    confusion_matrix,
+    f1_score,
+    log_loss,
+    matthews_corrcoef,
+    precision_recall_fscore_support,
+    roc_auc_score,
+)
 
 from ensemble_learning import HORIZONS
 from ensemble_learning.baselines import make_classical_model
@@ -64,7 +73,7 @@ def classification_metrics(y, p):
             confidence=float(p[selected].mean()); accuracy=float(y[selected].mean())
             reliability.append({"bin":index,"n":int(selected.sum()),"confidence":confidence,"accuracy":accuracy})
             ece += float(selected.mean())*abs(confidence-accuracy)
-    result={"n": int(len(y)), "mcc": float(matthews_corrcoef(y,pred)),
+    result={"n": len(y), "mcc": float(matthews_corrcoef(y,pred)),
         "accuracy": float(accuracy_score(y,pred)), "balanced_accuracy": float(balanced_accuracy_score(y,pred)),
         "precision_by_class": precision.tolist(), "recall_by_class": recall.tolist(),
         "f1_by_class": f1.tolist(), "macro_f1": float(f1_score(y,pred,average="macro",zero_division=0)),
@@ -155,12 +164,12 @@ def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
         "classical_hyperparameters":model_params,"early_stopping":False}
     (work_dir/"config.yaml").write_text(json.dumps(config,indent=2,default=str),encoding="utf-8")
     try: commit=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
-    except Exception: commit=None
+    except (subprocess.CalledProcessError, FileNotFoundError): commit=None
     versions={}
     for package in ("numpy","pandas","scikit-learn","xgboost","pyarrow"):
         try: versions[package]=importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError: pass
-    manifest={"experiment_id":exp_id,"created_at_utc":datetime.now(timezone.utc).isoformat(),"git_commit":commit,
+    manifest={"experiment_id":exp_id,"created_at_utc":datetime.now(UTC).isoformat(),"git_commit":commit,
         "data_file":str(data_path),"data_sha256":_sha(data_path),"python":platform.python_version(),
         "platform":platform.platform(),"cpu":platform.processor(),"device":"CPU classical model",
         "versions":versions,"model":model_name,"seed":seed,"features":cols,
