@@ -45,6 +45,11 @@ arquivo de saída. Os argumentos não garantem congelamento automaticamente;
 o controle científico depende de revisão e disciplina experimental.
 
 ## Pendente
+
+Modelos tabulares disponíveis via `--model`: `logreg`, `random_forest`,
+`hist_gradient_boosting` e `xgboost`. MLP, CNN, LSTM e GRU independentes e
+multitarefa estão definidos como arquiteturas PyTorch; ainda não há gerador de
+sequências ou treinador neural. A execução de testes usa dados sintéticos.
 1. Extrator versionado BovDB/QuantBase de leitura apenas e manifesto de proveniência.
 2. Congelar o B0 efetivo, intervalo informacional e ground truth independente.
 3. Determinar divisão walk-forward além deste primeiro holdout e orçamento por método.

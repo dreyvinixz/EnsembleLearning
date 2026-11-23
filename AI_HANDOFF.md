@@ -1,5 +1,10 @@
 # AI handoff — 2026-11-23
 
+## Integração de arquiteturas — 2026-11-23
+
+- PR #8, branch `feat/integrate-architectures`, parte da main após merge do PR #7. Integra seletivamente regressão logística, random forest, hist gradient boosting, XGBoost e arquiteturas MLP/CNN/LSTM/GRU independentes e multitarefa. O CLI seleciona modelos tabulares e preserva o split por datas. XGBoost foi incluído nas dependências.
+- GitHub Actions Linux executou pytest/Ruff e job PyTorch CPU com testes de forward e gradientes, usando dados sintéticos. Não houve treinamento real nem avaliação do teste final. Arquiteturas neurais ainda não possuem gerador causal de sequências nem treinador. Próximo passo: implementá-los e verificar disponibilidade de dados antes de qualquer treino.
+
 Goal: one journal research project combining multiscale B0 label quality with
 Independent Learning, MTL, Voting, Bagging, Stacking, Boosting and (conditional)
 disagreement-aware adaptive ensemble (DAME). GRU independent/MTL are candidate
