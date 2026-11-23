@@ -30,3 +30,7 @@ Executar walk-forward, métricas e inferência pré-definidas; comparar células
 - Datas e número de folds, embargo justificado, orçamento, sementes e critérios de seleção.
 - Métrica principal, família de hipóteses, unidade de reamostragem e poder estatístico.
 - Definição e disponibilidade de regimes, protocolo de calibração e eventual avaliação econômica.
+
+## Período selecionado
+
+O estudo usará o período disponível de **2 de janeiro a 30 de junho de 2026**, conforme decisão do responsável pela pesquisa. Os bancos inspecionados contêm 119 datas, 41 tickers e 1.255.202 candles no conjunto total. Cobertura por ativo, critérios de inclusão, divisões cronológicas e folds permanecem a definir; a disponibilidade dos rótulos seguirá `disponibilidade-rotulos.md`.
