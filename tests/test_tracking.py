@@ -1,10 +1,29 @@
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 import pytest
+from sklearn.metrics import matthews_corrcoef
 
 from ensemble_learning.contracts import validate_frame
-from ensemble_learning.tracking import run_walk_forward, walk_forward_folds
+from ensemble_learning.tracking import _session_bootstrap_ci, run_walk_forward, walk_forward_folds
+
+
+def test_session_bootstrap_matches_resampled_session_mcc():
+    frame = pd.DataFrame({
+        "session_date": ["2026-01-02"] * 3 + ["2026-01-03"] * 2,
+        "y_true": [0, 1, 1, 0, 1],
+        "p_up": [.1, .8, .4, .7, .9],
+    })
+    rng = np.random.default_rng(23)
+    sessions = frame.session_date.unique()
+    scores = []
+    for sampled in (rng.choice(sessions, size=len(sessions), replace=True) for _ in range(40)):
+        sample = pd.concat([frame.loc[frame.session_date == day] for day in sampled])
+        scores.append(matthews_corrcoef(sample.y_true, (sample.p_up >= .5).astype(int)))
+    assert _session_bootstrap_ci(frame, seed=23, iterations=40) == [
+        float(np.quantile(scores, .025)), float(np.quantile(scores, .975))
+    ]
 
 
 def _development_frame():

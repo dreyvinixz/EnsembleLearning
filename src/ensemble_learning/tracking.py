@@ -86,15 +86,33 @@ def classification_metrics(y, p):
 
 
 def _session_bootstrap_ci(frame, *, seed=42, iterations=500):
-    sessions=frame.session_date.astype(str).unique()
-    if len(sessions)<2: return [None,None]
-    rng=np.random.default_rng(seed); scores=[]
-    for _ in range(iterations):
-        sampled=rng.choice(sessions,size=len(sessions),replace=True)
-        pieces=[frame.loc[frame.session_date.astype(str)==day] for day in sampled]
-        sample=pd.concat(pieces,ignore_index=True)
-        scores.append(matthews_corrcoef(sample.y_true,(sample.p_up>=.5).astype(int)))
-    return [float(np.quantile(scores,.025)),float(np.quantile(scores,.975))]
+    grouped = frame.assign(
+        _pred=(frame.p_up.to_numpy() >= .5).astype(int),
+        _true=frame.y_true.to_numpy(dtype=int),
+        _session=frame.session_date.astype(str).to_numpy(),
+    )
+    sessions = grouped["_session"].unique()
+    if len(sessions) < 2:
+        return [None, None]
+    counts = []
+    for session in sessions:
+        part = grouped.loc[grouped["_session"] == session]
+        truth, pred = part["_true"].to_numpy(), part["_pred"].to_numpy()
+        counts.append((
+            np.count_nonzero((truth == 1) & (pred == 1)),
+            np.count_nonzero((truth == 0) & (pred == 0)),
+            np.count_nonzero((truth == 0) & (pred == 1)),
+            np.count_nonzero((truth == 1) & (pred == 0)),
+        ))
+    counts = np.asarray(counts, dtype=np.int64)
+    rng = np.random.default_rng(seed)
+    scores = np.empty(iterations, dtype=float)
+    for index in range(iterations):
+        sampled = counts[rng.integers(0, len(sessions), size=len(sessions))].sum(axis=0)
+        tp, tn, fp, fn = sampled
+        denominator = np.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+        scores[index] = (tp * tn - fp * fn) / denominator if denominator else 0.0
+    return [float(np.quantile(scores, .025)), float(np.quantile(scores, .975))]
 
 
 def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
