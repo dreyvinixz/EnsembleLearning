@@ -17,7 +17,7 @@ def test_parquet_to_baseline_and_session_boundary(tmp_path):
     spec.loader.exec_module(builder)
     rows = []
     for day in ("2026-01-02", "2026-04-30", "2026-05-04", "2026-06-01"):
-        for index, stamp in enumerate(pd.date_range(day + " 17:00", periods=60, freq="min")):
+        for index, stamp in enumerate(pd.date_range(day + " 16:00", periods=120, freq="min")):
             price = 100 + index * 0.1
             rows.append(dict(instrument="WIN", asset_id=1, session_date=day,
                              candle_start_local=stamp, open=price, high=price + 1,
