@@ -107,6 +107,11 @@ def neural_walk_forward_main(argv: list[str] | None = None) -> int:
     parser.add_argument("--hidden-size", type=int, default=32)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument(
+        "--no-refit-after-early-stopping", action="store_false",
+        dest="refit_after_early_stopping", default=True,
+        help="Use the inner-validation best checkpoint directly instead of refitting on the full purged fold train",
+    )
     args = parser.parse_args(argv)
 
     from ensemble_learning.contracts import validate_sequence_frame
@@ -133,6 +138,7 @@ def neural_walk_forward_main(argv: list[str] | None = None) -> int:
                 weight_decay=args.weight_decay, precision=args.precision,
                 num_workers=args.num_workers, compile_model=args.compile,
                 allow_tf32=args.allow_tf32,
+                refit_after_early_stopping=args.refit_after_early_stopping,
             )
             outputs.append(str(result))
     print("\n".join(outputs))

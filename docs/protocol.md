@@ -18,6 +18,21 @@ slots ausentes com máscara, sem cruzar sessões, e decisão inicial às 10:00.
 Junho é rejeitado pelo treinador atual; ainda falta um executor controlado de
 holdout final.
 
+Clássico e neural usam o mesmo gate de âncoras: instrumento/sessão/instante com
+janela causal de 60 minutos, pelo menos 48 candles observados, decisão a partir
+das 10:00 e os três rótulos B0 presentes. A comparação pareada exige igualdade
+completa de instrument, session_date, decision_time, scale e fold e igualdade
+de `y_true`; qualquer chave ausente em um dos métodos invalida a comparação.
+Cobertura por partição registra linhas de contexto, rótulos ausentes, decisões
+antes das 10h, cobertura insuficiente e amostras aceitas.
+
+Para o treinamento neural, early stopping seleciona o número de épocas em uma
+partição interna cronológica e purgeada. O modelo é então reinicializado e
+reajustado pelo número selecionado em todo o bloco de treino permitido do fold,
+excluindo validação e OOF; este é o comportamento padrão. A decisão de épocas
+vem somente da validação interna. Comparações anteriores sem refit são
+exploratórias e precisam ser refeitas antes de seleção de modelos.
+
 Não estão cobertos pela implementação atual: treino final em junho, seleção
 congelada após maio, Voting/Seed Ensemble/Block Bagging/Stacking, boosting no
 walk-forward completo, calibração pós-treino, regime, predição seletiva,

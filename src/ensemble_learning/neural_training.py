@@ -158,7 +158,9 @@ def _build_dataset(
     if not len(windows.anchors):
         raise ValueError("No B0 target anchors pass the causal window and coverage gate")
     values = _transform_features(context, columns, normalizer)
-    return _WindowDataset(windows, values, output_targets), windows
+    dataset = _WindowDataset(windows, values, output_targets)
+    dataset.normalizer = normalizer
+    return dataset, windows
 
 
 def _class_weights(dataset: _WindowDataset, task_index: int) -> torch.Tensor:
@@ -227,6 +229,7 @@ def _train_one_fold(
     strategy: str,
     fold_name: str,
     fit_dataset: _WindowDataset,
+    full_train_dataset: _WindowDataset,
     early_validation_dataset: _WindowDataset,
     prediction_dataset: _WindowDataset,
     target_list: list[int],
@@ -247,6 +250,7 @@ def _train_one_fold(
     num_workers: int,
     compile_model: bool,
     allow_tf32: bool,
+    refit_after_early_stopping: bool,
 ):
     _seed(seed)
     model = _new_model(
@@ -359,21 +363,117 @@ def _train_one_fold(
 
     if best_state is None:
         raise RuntimeError("Early stopping did not produce a best checkpoint")
-    uncompiled_model.load_state_dict(best_state)
-    uncompiled_model.to(device)
+    refit_seconds = 0.0
+    refit_best_path = checkpoint_dir / f"{checkpoint_base}_refit_best.pt"
+    refit_last_path = checkpoint_dir / f"{checkpoint_base}_refit_last.pt"
+    if refit_after_early_stopping:
+        # Epoch count is selected only on the chronological inner validation
+        # partition. Reinitialize and fit on the complete purged fold train;
+        # neither validation nor OOF labels enter this optimization.
+        _seed(seed)
+        refit_model = _new_model(
+            architecture, strategy, input_size=input_size,
+            hidden_size=hidden_size, window_minutes=window_minutes,
+        ).to(device)
+        refit_model._ensemble_precision = precision
+        refit_uncompiled_model = refit_model
+        if compile_model:
+            refit_model = torch.compile(refit_model)
+        refit_weights = {
+            horizon: _class_weights(full_train_dataset, index).to(device)
+            for index, horizon in enumerate(target_list)
+        }
+        refit_optimizer = torch.optim.AdamW(
+            refit_model.parameters(), lr=learning_rate, weight_decay=weight_decay,
+            fused=device.type == "cuda",
+        )
+        refit_scaler = torch.amp.GradScaler(
+            "cuda", enabled=device.type == "cuda" and precision == "fp16"
+        )
+        refit_generator = torch.Generator().manual_seed(seed)
+        refit_loader = DataLoader(
+            full_train_dataset, batch_size=batch_size, shuffle=True,
+            generator=refit_generator, num_workers=num_workers,
+            pin_memory=device.type == "cuda", persistent_workers=num_workers > 0,
+            drop_last=False,
+        )
+        refit_started = time.perf_counter()
+        refit_history = []
+        for epoch_index in range(1, best_epoch + 1):
+            refit_model.train()
+            epoch_started = time.perf_counter()
+            loss_sum, count = 0.0, 0
+            for features, labels in refit_loader:
+                features = features.to(device, non_blocking=device.type == "cuda")
+                labels = labels.to(device, non_blocking=device.type == "cuda")
+                refit_optimizer.zero_grad(set_to_none=True)
+                with _autocast_context(device, precision):
+                    outputs = _prediction_map(refit_model(features), strategy, target_list)
+                    task_losses = []
+                    for index, horizon in enumerate(target_list):
+                        truth = labels if strategy == "independent" else labels[:, index]
+                        task_losses.append(F.cross_entropy(
+                            outputs[horizon].float(), truth,
+                            weight=refit_weights[horizon],
+                        ))
+                    loss = torch.stack(task_losses).mean()
+                refit_scaler.scale(loss).backward()
+                refit_scaler.step(refit_optimizer)
+                refit_scaler.update()
+                loss_sum += loss.item() * len(features)
+                count += len(features)
+            refit_history.append({
+                "fold": fold_name, "architecture": architecture,
+                "strategy": strategy, "seed": seed, "phase": "full_block_refit",
+                "epoch": epoch_index, "train_loss": loss_sum / max(count, 1),
+                "validation_loss": None, "validation_mcc": None,
+                "validation_accuracy": None,
+                "learning_rate": refit_optimizer.param_groups[0]["lr"],
+                "epoch_seconds": time.perf_counter() - epoch_started,
+                "selected_epoch_count": best_epoch,
+            })
+        refit_seconds = time.perf_counter() - refit_started
+        refit_state = {
+            name: value.detach().cpu().clone()
+            for name, value in refit_uncompiled_model.state_dict().items()
+        }
+        checkpoint_payload = {
+            "state_dict": refit_state, "architecture": architecture,
+            "strategy": strategy, "target_protocol": "b0_retrospective",
+            "target_list": target_list, "feature_columns": columns,
+            "normalizer": getattr(full_train_dataset, "normalizer", None),
+            "window_minutes": window_minutes, "minimum_observed": 48,
+            "selected_epoch_count": best_epoch, "seed": seed,
+            "training_partition": "complete_purged_fold_train",
+        }
+        torch.save(checkpoint_payload, refit_best_path)
+        torch.save({"state_dict": refit_state, "epoch": best_epoch}, refit_last_path)
+        refit_uncompiled_model.to(device)
+        prediction_model = refit_model
+        history.extend(refit_history)
+    else:
+        uncompiled_model.load_state_dict(best_state)
+        uncompiled_model.to(device)
+        prediction_model = model
     predictions = _evaluate(
-        model, prediction_loader, strategy=strategy, target_list=target_list, device=device
+        prediction_model, prediction_loader, strategy=strategy,
+        target_list=target_list, device=device
     )
     elapsed = time.perf_counter() - started
     return predictions, history, {
         "fold": fold_name, "architecture": architecture, "strategy": strategy,
         "best_epoch": best_epoch, "epochs_run": epoch, "fit_seconds": elapsed,
         "best_inner_validation_loss": best_loss, "parameter_count": parameter_count,
+        "refit_after_early_stopping": refit_after_early_stopping,
+        "refit_epochs": best_epoch if refit_after_early_stopping else 0,
+        "refit_fit_anchors": len(full_train_dataset) if refit_after_early_stopping else 0,
+        "refit_seconds": refit_seconds,
         "compile_setup_seconds": compile_seconds, "precision": precision,
         "loader_workers": num_workers, "pin_memory": device.type == "cuda",
         "tf32_allowed": allow_tf32 and device.type == "cuda",
         "fused_adamw": device.type == "cuda",
-        "checkpoints": [best_path.name, last_path.name],
+        "checkpoints": [best_path.name, last_path.name]
+        + ([refit_best_path.name, refit_last_path.name] if refit_after_early_stopping else []),
     }
 
 
@@ -416,6 +516,7 @@ def run_neural_experiment(
     num_workers: int = 0,
     compile_model: bool = False,
     allow_tf32: bool = False,
+    refit_after_early_stopping: bool = True,
 ) -> Path:
     """Train one neural architecture/strategy over the Stage 10 folds.
 
@@ -478,12 +579,18 @@ def run_neural_experiment(
                 fold["train"], validation_fraction=validation_fraction
             )
             normalizer = _fit_normalizer(fit_context, columns)
+            full_train_normalizer = _fit_normalizer(fold["train"], columns)
             target_runs = [[horizon] for horizon in HORIZONS] if strategy == "independent" else [target_list]
             for run_targets in target_runs:
                 output_targets = [f"y_{horizon}m" for horizon in run_targets]
                 fit_dataset, fit_windows = _build_dataset(
                     fit_context, columns=columns, anchor_targets=target_columns,
                     output_targets=output_targets, normalizer=normalizer,
+                    window_minutes=window_minutes, min_observed=min_observed,
+                )
+                full_train_dataset, full_train_windows = _build_dataset(
+                    fold["train"], columns=columns, anchor_targets=target_columns,
+                    output_targets=output_targets, normalizer=full_train_normalizer,
                     window_minutes=window_minutes, min_observed=min_observed,
                 )
                 validation_dataset, validation_windows = _build_dataset(
@@ -508,7 +615,8 @@ def run_neural_experiment(
                     torch.cuda.empty_cache()
                 fold_predictions, fold_history, fit_manifest = _train_one_fold(
                     architecture=architecture, strategy=strategy, fold_name=fold["fold"],
-                    fit_dataset=fit_dataset, early_validation_dataset=validation_dataset,
+                    fit_dataset=fit_dataset, full_train_dataset=full_train_dataset,
+                    early_validation_dataset=validation_dataset,
                     prediction_dataset=prediction_dataset, target_list=run_targets,
                     input_size=len(columns) + 1, hidden_size=hidden_size,
                     window_minutes=window_minutes, seed=seed, device=device,
@@ -517,9 +625,12 @@ def run_neural_experiment(
                     checkpoint_dir=checkpoint_dir, columns=columns, normalizer=normalizer,
                     precision=precision, num_workers=num_workers,
                     compile_model=compile_model, allow_tf32=allow_tf32,
+                    refit_after_early_stopping=refit_after_early_stopping,
                 )
                 fit_manifest["fit_start"] = fit_windows.anchors.session_date.min()
                 fit_manifest["fit_end"] = fit_windows.anchors.session_date.max()
+                fit_manifest["refit_train_start"] = full_train_windows.anchors.session_date.min()
+                fit_manifest["refit_train_end"] = full_train_windows.anchors.session_date.max()
                 histories.extend(fold_history)
                 fits.append({
                     **fit_manifest, "trained_horizons": run_targets,
@@ -528,10 +639,12 @@ def run_neural_experiment(
                     "inner_validation_end": inner_validation_context.session_date.max(),
                     "oof_start": fold["oof_start"], "oof_end": fold["oof_end"],
                     "n_fit_anchors": len(fit_dataset),
+                    "n_full_purged_train_anchors": len(full_train_dataset),
                     "n_inner_validation_anchors": len(validation_dataset),
                     "n_prediction_anchors": len(prediction_dataset),
                     "materialized_feature_bytes": (
                         fit_dataset.feature_tensor_bytes
+                        + full_train_dataset.feature_tensor_bytes
                         + validation_dataset.feature_tensor_bytes
                         + prediction_dataset.feature_tensor_bytes
                     ),
@@ -551,6 +664,7 @@ def run_neural_experiment(
                     }))
                 del (
                     fit_dataset, validation_dataset, prediction_dataset,
+                    full_train_dataset, full_train_windows,
                     prediction_windows, fold_predictions, fold_history,
                 )
 
@@ -602,6 +716,7 @@ def run_neural_experiment(
             "mask_channel": "1 if source candle observed in slot, otherwise 0",
             "horizons": list(HORIZONS), "hidden_size": hidden_size,
             "epochs": epochs, "early_stopping_patience": patience,
+            "refit_after_early_stopping": refit_after_early_stopping,
             "internal_validation_fraction_by_session": validation_fraction,
             "batch_size": batch_size, "learning_rate": learning_rate,
             "weight_decay": weight_decay, "device_requested": device_name,

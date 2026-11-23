@@ -68,23 +68,32 @@ candles de contexto sem os três alvos, decisões antes das 10h, cobertura
 insuficiente e âncoras aceitas por fold e partição. Após a purga, candles sem
 rótulo continuam disponíveis como contexto, mas não são exemplos de ajuste.
 `ensemble-pair <predictions_a.parquet> <predictions_b.parquet> <novo-diretorio>`
-compara a interseção de instrumento, sessão, instante, escala e fold; rejeita
-chaves duplicadas e diferenças em `y_true` e registra métricas e contagens.
-Escolha uma seed por arquivo: múltiplas seeds com a mesma chave são rejeitadas.
-O clássico ajusta usando todo o bloco de treino disponível; o neural reserva
-sessões para early stopping. O reajuste neural sobre todo o bloco após escolher
-épocas ainda não está implementado, portanto essa diferença deve ser considerada
-ao interpretar comparações.
+compara a população exata de instrumento, sessão, instante, escala e fold;
+rejeita chaves ausentes em qualquer lado, duplicatas, timestamps incompatíveis
+e diferenças em `y_true`. O gate comum é uma janela causal de 60 minutos, com
+pelo menos 48 candles observados, decisão a partir das 10h e os três alvos B0
+presentes. `coverage.csv` registra contexto, alvos ausentes, decisões anteriores
+às 10h, cobertura insuficiente e amostras aceitas.
+
+O neural seleciona a quantidade de épocas na partição interna cronológica e
+purgeada. Por padrão, então reinicializa o modelo e ajusta por esse número de
+épocas em todo o bloco de treino purgado do fold; validação interna e OOF não
+entram nesse refit. Checkpoints de seleção e refit são separados e a contagem,
+intervalo de datas, tempo e opção de refit ficam nos artefatos. `--no-refit-after-early-stopping`
+mantém o comportamento antigo apenas para diagnósticos explicitamente
+identificados. As comparações finais devem usar o refit padrão e verificar a
+igualdade completa da população antes de calcular métricas pareadas.
 
 ### Limites científicos e trabalho restante
 
 - A liberação pós-sessão de B0 é uma hipótese conservadora simulada; não é hora
   histórica observada. Origem/vintage e semântica do rótulo permanecem descritas
   em `auditoria-gerador-b0.md` e `disponibilidade-rotulos.md`.
-- Ainda não há execução neural real concluída nem benchmark end-to-end no
-  snapshot aprovado. Os benchmarks disponíveis usam dados sintéticos. O host
-  de destino foi identificado como RTX 5060 Ti, mas disponibilidade do hardware
-  não é resultado experimental.
+- O refit e a validação estrita de população foram implementados nesta correção;
+  16 execuções Linux e previsões pareadas anteriores existem, mas foram feitas
+  sem refit. Devem ser preservadas como exploratórias; novas execuções reais e
+  auditoria dos artefatos com este código são necessárias antes de comparar
+  métodos ou iniciar ensembles.
 - O runner de teste final de junho, seleção final após maio, calibração treinada
   sem vazamento, ensembles, boosting comparativo, PCGrad e DAME não estão
   implementados nesta etapa. Não executar junho durante desenvolvimento.
