@@ -56,3 +56,12 @@ every change; do not push results invented from synthetic fixtures.
 - User chose only mini-index contracts and the two most liquid each month. `docs/protocolo-mini-indice.md` records an initial causal operationalization: prior-month liquidity ranking among contracts eligible at the beginning of the target month, fixed before the month, with no retroactive replacement. Confirm the source `volume` units and expiry/calendar. January has no previous month in the supplied snapshot; obtain prior information or exclude January from predictive comparisons that require this selection. Monthly full-period rankings in the document are descriptive, not causal selections.
 - Initial coverage thresholds: at least 80% of eligible sessions per contract-month and 90% jointly non-null 5/10/15 labels among matched source candles, with reporting of gaps and session completeness. These are proposed thresholds, not empirically validated; expiration and no-trade periods must not be treated as missing data automatically.
 - Proposed chronological blocks: Jan–Apr training (January conditional), May validation, June final test, with session-level separation, conservative label availability and development-only walk-forward. No model evaluation or final test executed.
+
+## QuantBase ClickHouse December inspection — 2026-11-23
+
+- User authorized read-only inspection of `quantbase-clickhouse-dev` container. ClickHouse queries used `--readonly 2`. December 2025 exists in `candles_1d`, but searches for symbols beginning WIN returned zero rows for December in `candles_1d`, `candles_1s`, and `asset_historical_registry`.
+- `candles_1s` has WIN history outside December: WING26, WINJ26 and WINZ25 in October and five November dates; WING26 and WINJ26 in January. This instance cannot currently establish the requested December WIN ranking from those tables. Other stores, snapshots or symbol conventions remain possible; no writes or exports performed.
+
+## Public B3 source for December — 2026-11-23
+
+- Found B3 daily BDI documents with WIN volume and contract counts by expiration, for example https://arquivos.b3.com.br/bdi/download/bdi/2025-12-02/BDI_03-1_20251202.pdf. These can support reconstruction of the December ranking without the missing local database. No complete monthly aggregation or selected pair is yet verified. Archive source links, hashes, sessions and extraction method; filter December-expired contracts before selecting January's eligible pair.

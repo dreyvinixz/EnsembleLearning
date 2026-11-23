@@ -26,3 +26,13 @@ Agrupar por pregão para todos os contratos e escalas. Usar a sessão inteira co
 ## Conferência descritiva dos contratos
 
 Uma consulta somente de leitura ao snapshot ordenou retrospectivamente cada mês por soma do campo `volume` (o significado financeiro ainda precisa ser validado). Os dois primeiros foram: janeiro WING26/WINJ26; fevereiro WING26/WINJ26; março WINJ26/WINM26; abril WINM26/WINJ26; maio WINM26/WINQ26; junho WINM26/WINQ26. **Esta lista descreve o mês completo e não é a seleção causal do experimento.** Alguns contratos vencem dentro do mês; confirmar calendário e validade por pregão antes de montar o universo. Não foram calculadas métricas de modelos nem consultados resultados do teste.
+
+## ClickHouse QuantBase: busca por dezembro de 2025
+
+Em 2026-11-23, consultas somente de leitura no container `quantbase-clickhouse-dev` não retornaram nenhum símbolo iniciado por `WIN` em dezembro de 2025 nas tabelas `quantbase.candles_1s` e `quantbase.candles_1d`, nem registros `WIN` no mesmo mês em `asset_historical_registry`. `candles_1d` contém dados de dezembro para outros símbolos. Na tabela intradiária, uma consulta adicional por WING26, WINJ26 e WINZ25 mostrou dados em outubro e nos primeiros cinco pregões de novembro, seguidos por dados de WING26 e WINJ26 em janeiro de 2026; não retornou linhas desses contratos em dezembro. Esses resultados descrevem esta instância e tabelas consultadas, não provam inexistência em outros bancos, arquivos, backups ou fontes.
+
+Portanto, o ranking de liquidez de dezembro ainda não pode ser calculado a partir dessas consultas. É necessário localizar outra origem ou revisar a regra inicial de janeiro sem usar dados futuros. Não foram feitas alterações no ClickHouse nem exportação dos dados.
+
+## Fonte pública para a seleção de janeiro
+
+A B3 publica boletins diários de informações (BDI) com contratos WIN por vencimento e colunas de negócios, contratos negociados e volume; exemplo verificável de 02/12/2025: https://arquivos.b3.com.br/bdi/download/bdi/2025-12-02/BDI_03-1_20251202.pdf. A fonte oficial de especificação e vencimentos é https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/futuro-de-ibovespa.htm. Essa evidência mostra que é possível reconstruir o ranking de dezembro, mas o ranking mensal completo ainda não foi coletado nem validado. Agregar todas as sessões e partes relevantes dos BDIs, documentar métrica, disponibilidade, arquivos e hashes; filtrar contratos vencidos antes de janeiro antes de escolher os dois elegíveis. Não inferir o segundo contrato por amostra de um único pregão.
