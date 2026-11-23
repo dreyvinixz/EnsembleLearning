@@ -18,6 +18,10 @@ def test_pairing_intersection_and_conflicting_labels():
         paired_metrics(base, changed)
     with pytest.raises(ValueError, match="duplicate"):
         paired_metrics(pd.concat([base, base]), base)
+    naive = base.copy()
+    naive["decision_time"] = ["2026-01-05T13:00:00", "2026-01-05T13:01:00"]
+    with pytest.raises(ValueError, match="timezone offset"):
+        paired_metrics(naive, base)
 
 
 def test_unlabeled_context_counts_and_coverage_boundary():

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from ensemble_learning.contracts import timestamp_column
 from ensemble_learning.tracking import classification_metrics
 
 KEYS = ["instrument", "session_date", "decision_time", "scale", "fold"]
@@ -21,7 +22,7 @@ def paired_metrics(left: pd.DataFrame, right: pd.DataFrame) -> tuple[pd.DataFram
         frame = original.copy()
         if frame[KEYS + ["y_true", "p_up"]].isna().any().any():
             raise ValueError(f"{name} has null keys, labels or probabilities")
-        frame["decision_time"] = pd.to_datetime(frame.decision_time, utc=True, errors="raise")
+        frame["decision_time"] = timestamp_column(frame, "decision_time")
         frame["session_date"] = frame.session_date.astype(str)
         if frame.duplicated(KEYS).any():
             raise ValueError(f"{name} contains duplicate prediction keys")
