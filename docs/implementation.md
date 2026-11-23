@@ -230,3 +230,18 @@ dois de seis ICs de maio excluem zero em direções opostas; há 12 contrastes s
 correção de multiplicidade. Não há evidência suficiente de vantagem geral.
 Resultados são exploratórios e não medem PnL. Previsões completas de amostras
 e membros permanecem no Linux, fora do Git.
+
+## Figuras comparativas Stage 12 — 2026-11-23
+
+Foram geradas figuras de MCC e acurácia para Logistic Regression, Voting,
+Block Bagging e Stacking. Para preservar o pareamento e incluir o Stacking,
+OOF está restrito a março–abril (folds 02–03); maio é mostrado separadamente.
+Cada ponto tem IC percentil de 95% via 5.000 reamostragens de sessões. OOF
+contém 42 sessões e 32.066 amostras por escala; maio contém 17 sessões e
+11.998 por escala. As chaves e `y_true` são verificadas exatamente entre os
+quatro métodos em cada período/escala. As barras são ICs marginais; não
+substituem os contrastes pareados nem corrigem multiplicidade.
+
+PNG/PDF, dados agregados, manifesto e instruções de reprodução estão em
+`figures/stage12-{mcc,accuracy}-2026-11-23.*` e
+`reports/stage12/paired-metrics-2026-11-23/`. Junho não foi acessado.

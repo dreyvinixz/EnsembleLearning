@@ -249,3 +249,10 @@ every change; do not push results invented from synthetic fixtures.
 - Validação Linux no worktree temporário: `62 passed, 16 warnings` em 15,95 s; avisos são de depreciação de `Timedelta` em código/teste preexistente. Ruff nos arquivos Stage 12 passou. O teste Windows não coletou por falta das dependências instaladas; não é usado como validação.
 - Commit `3c184fc` foi enviado à branch `feat/stage12-ensembles`; PR #12 aberto: https://github.com/dreyvinixz/EnsembleLearning/pull/12. Os jobs `pytest` e `neural` passaram em ambos os workflows de push/PR (runs 45250818172 e 45250857481). PR aguarda revisão; não foi feito merge.
 - Próximos passos: revisar o PR e, após aprovação, integrar Stage 12. Treinamento final/teste de junho não faz parte desta etapa.
+
+## Figuras MCC e acurácia Stage 12 — 2026-11-23
+
+- A pedido do usuário, geradas figuras de MCC e acurácia para Logistic Regression, Voting, Block Bagging e Stacking, com intervalos percentis de 95% por bootstrap de sessões (5.000 reamostragens). OOF usa somente março–abril (42 sessões, n=32.066 por escala), para manter Stacking e os demais métodos na mesma população; maio é separado (17 sessões, n=11.998 por escala).
+- `scripts/summarize_stage12_common_metrics.py` lê as previsões no Linux, exige igualdade exata de chaves e `y_true` e salva apenas métricas agregadas e hashes. `scripts/plot_stage12_metrics.py` gera PNG/PDF vetoriais; `matplotlib` foi adicionado como dependência opcional `plots`.
+- Figuras em `figures/stage12-{mcc,accuracy}-2026-11-23.{png,pdf}`; dados/manifesto/descrição em `reports/stage12/paired-metrics-2026-11-23/`. As duas imagens foram inspecionadas; junho não foi consultado. ICs de métrica são marginais e não substituem os contrastes pareados já reportados.
+- Pendência: adicionar esses artefatos ao PR #12, rodar a validação pertinente e confirmar CI. PR permanece aberto, sem merge.
