@@ -13,3 +13,11 @@ of information availability. Do not evaluate the reserved TEST just to debug.
 Do not claim experimental improvement or DAME novelty without evidence.
 Prefer a small coherent change plus tests and source manifest over a speculative
 end-to-end pipeline. Report what ran and what remains unimplemented.
+
+## Handoff maintenance
+
+Read `AI_HANDOFF.md` at the start of work. Update it after meaningful changes or
+investigations with the outcome, evidence, validation, limitations, current
+checkout state, and next steps. Preserve prior context; distinguish verified
+facts from plans and unverified assumptions. Do not include credentials or
+private data.
