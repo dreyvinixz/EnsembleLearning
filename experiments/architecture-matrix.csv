@@ -1,0 +1,11 @@
+architecture,input,independent,MTL,role,status
+Logistic Regression,tabular,core,no,linear baseline,validation baseline implemented
+Random Forest,tabular,core,no,tree baseline,validation baseline implemented
+HistGradientBoosting,tabular,core,no,boosting baseline,validation baseline implemented
+XGBoost,tabular,core,no,boosting baseline,validation baseline implemented
+SVM,tabular,planned,no,requires temporal calibration,not implemented
+MLP,causal sequence,core,core,neural baseline,forward only
+1D-CNN,causal sequence,core,core,local temporal patterns,forward only
+LSTM,causal sequence,core,core,recurrent temporal patterns,forward only
+GRU,causal sequence,core,core,recurrent temporal patterns,forward only
+DAME,causal predictions,na,na,adaptive ensemble hypothesis,not implemented
