@@ -2,7 +2,7 @@
 
 Repositório de pesquisa para investigar como a qualidade e a discordância dos rótulos de tendência em 5, 10 e 15 minutos se relacionam com a generalização de modelos independentes, multitarefa e ensembles. O título e o nome DAME são provisórios.
 
-**Estado:** estrutura e protocolo inicial; não há dados, modelos implementados, experimentos executados ou resultados validados neste repositório. Hipóteses e escolhas propostas ainda precisam ser acordadas e congeladas antes do teste final.
+**Estado:** fase 0 com validador de dados, holdout cronológico e baseline independente executável; modelos GRU apenas definidos (não treinados). Sem dataset BovDB conectado, sem experimentos reais executados e sem resultados validados. A definição do B0 ainda precisa ser auditada.
 
 ## Navegação
 
@@ -22,4 +22,13 @@ Repositório de pesquisa para investigar como a qualidade e a discordância dos 
 4. Investigar discordância e transferência entre tarefas; desenvolver o DAME somente se as evidências justificarem.
 5. Executar comparações, ablações e análise estatística; preservar o teste final até o protocolo estar congelado.
 
-Não há comando de treinamento por enquanto. As pastas são pontos de organização, não indicam implementação ou validação concluída.
+## Começar com o primeiro baseline
+```bash
+python -m pip install -e ".[dev]"
+pytest -q
+ensemble-b0 --csv data/approved_snapshot.csv --validation-sessions 20 --test-sessions 20 --output results/baseline_v1.json
+```
+
+O comando só pode ser executado com um **CSV aprovado no contrato**, contendo timestamps informacionais e rótulos binários explicitamente definidos. Nenhum CSV real foi incluído. O teste final é reservado por padrão; a implementação não substitui o congelamento formal do protocolo.
+
+Veja [guia de execução e esquema do CSV](docs/implementation.md). As arquiteturas GRU independente e MTL estão em código, mas ainda não possuem loop de treino.
