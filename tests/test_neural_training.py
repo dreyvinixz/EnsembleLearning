@@ -7,15 +7,15 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from ensemble_learning.contracts import validate_sequence_frame
-from ensemble_learning.neural_training import (
+from ensemble_learning.contracts import validate_sequence_frame  # noqa: E402, RUF100
+from ensemble_learning.neural_training import (  # noqa: E402, RUF100
     _training_validation_split,
     _WindowDataset,
     run_neural_experiment,
 )
-from ensemble_learning.pairing import paired_metrics
-from ensemble_learning.sequences import CausalWindows
-from ensemble_learning.tracking import run_walk_forward
+from ensemble_learning.pairing import paired_metrics  # noqa: E402, RUF100
+from ensemble_learning.sequences import CausalWindows  # noqa: E402, RUF100
+from ensemble_learning.tracking import run_walk_forward  # noqa: E402, RUF100
 
 TZ = ZoneInfo("America/Sao_Paulo")
 
@@ -117,8 +117,15 @@ def test_neural_walk_forward_records_b0_predictions_and_artifacts(
         <= fit["inner_validation_end"] < fit["oof_start"]
         for fit in training_summary["fold_fits"]
     )
+    assert all(fit["refit_after_early_stopping"] for fit in training_summary["fold_fits"])
+    assert all(
+        fit["refit_epochs"] == fit["best_epoch"]
+        and fit["n_full_purged_train_anchors"] >= fit["n_fit_anchors"]
+        and fit["refit_train_end"] < fit["oof_start"]
+        for fit in training_summary["fold_fits"]
+    )
     assert len(list((output / "checkpoints").glob("*_best.pt"))) == (
-        12 if strategy == "independent" else 4
+        24 if strategy == "independent" else 8
     )
 
 
@@ -153,6 +160,22 @@ def test_same_seed_reproduces_and_pairs_independent_with_mtl(tmp_path):
         repeat.sort_values(keys).p_up.reset_index(drop=True),
         check_exact=True,
     )
+
+
+def test_neural_refit_can_be_disabled_explicitly(tmp_path):
+    raw = _neural_development_frame()
+    data_path = tmp_path / "development.csv"
+    raw.to_csv(data_path, index=False)
+    frame = validate_sequence_frame(pd.read_csv(data_path))
+    output = run_neural_experiment(
+        frame, architecture="mlp", strategy="mtl", data_path=data_path,
+        results_root=tmp_path / "results", seed=11, device_name="cpu",
+        epochs=1, patience=1, batch_size=16, hidden_size=4,
+        refit_after_early_stopping=False,
+    )
+    summary = __import__("json").loads((output / "training_summary.json").read_text())
+    assert not any(fit["refit_after_early_stopping"] for fit in summary["fold_fits"])
+    assert all(fit["refit_fit_anchors"] == 0 for fit in summary["fold_fits"])
 
 
 def test_neural_runner_rejects_june_before_training(tmp_path):

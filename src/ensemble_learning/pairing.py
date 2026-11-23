@@ -13,7 +13,7 @@ KEYS = ["instrument", "session_date", "decision_time", "scale", "fold"]
 
 
 def paired_metrics(left: pd.DataFrame, right: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Return paired rows and per-fold/scale metrics; fail on label disagreement."""
+    """Compare identical prediction populations; reject partial intersections."""
     normalized = []
     for name, original in (("left", left), ("right", right)):
         required = set(KEYS + ["y_true", "p_up"])
@@ -29,12 +29,20 @@ def paired_metrics(left: pd.DataFrame, right: pd.DataFrame) -> tuple[pd.DataFram
         if not frame.y_true.isin([0, 1]).all() or not frame.p_up.between(0, 1).all():
             raise ValueError(f"{name} has invalid labels or probabilities")
         normalized.append(frame[KEYS + ["y_true", "p_up"]])
-    paired = normalized[0].merge(normalized[1], on=KEYS, how="inner",
-                                 suffixes=("_left", "_right"), validate="one_to_one")
-    if paired.empty:
-        raise ValueError("Prediction sets have no common observations")
+    paired = normalized[0].merge(
+        normalized[1], on=KEYS, how="outer", suffixes=("_left", "_right"),
+        validate="one_to_one", indicator=True,
+    )
+    if not paired["_merge"].eq("both").all():
+        only_left = int(paired["_merge"].eq("left_only").sum())
+        only_right = int(paired["_merge"].eq("right_only").sum())
+        raise ValueError(
+            "Prediction populations differ: "
+            f"{only_left} keys only on left, {only_right} keys only on right"
+        )
     if not paired.y_true_left.eq(paired.y_true_right).all():
         raise ValueError("Conflicting y_true in paired predictions")
+    paired = paired.drop(columns="_merge")
     records = []
     for (fold, scale), group in paired.groupby(["fold", "scale"], sort=True):
         for name in ("left", "right"):

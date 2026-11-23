@@ -5,13 +5,15 @@ from ensemble_learning.pairing import paired_metrics
 from ensemble_learning.sequences import build_causal_windows, summarize_eligibility
 
 
-def test_pairing_intersection_and_conflicting_labels():
+def test_pairing_requires_exact_population_and_matching_labels():
     base = pd.DataFrame({"instrument": ["WIN", "WIN"], "session_date": ["2026-01-05"] * 2,
                          "decision_time": ["2026-01-05T13:00:00Z", "2026-01-05T13:01:00Z"],
                          "scale": ["5m"] * 2, "fold": ["fold01"] * 2,
                          "y_true": [0, 1], "p_up": [.2, .8]})
-    paired, metrics = paired_metrics(base, base.iloc[1:])
-    assert len(paired) == 1 and metrics.n.tolist() == [1, 1]
+    paired, metrics = paired_metrics(base, base.copy())
+    assert len(paired) == 2 and metrics.n.tolist() == [2, 2]
+    with pytest.raises(ValueError, match="populations differ"):
+        paired_metrics(base, base.iloc[1:])
     changed = base.copy()
     changed.loc[1, "y_true"] = 0
     with pytest.raises(ValueError, match="Conflicting"):
@@ -22,6 +24,18 @@ def test_pairing_intersection_and_conflicting_labels():
     naive["decision_time"] = ["2026-01-05T13:00:00", "2026-01-05T13:01:00"]
     with pytest.raises(ValueError, match="timezone offset"):
         paired_metrics(naive, base)
+
+
+def test_pairing_detects_boundary_sample_missing_on_either_side():
+    base = pd.DataFrame({
+        "instrument": ["WIN", "WIN"], "session_date": ["2026-01-05"] * 2,
+        "decision_time": ["2026-01-05T13:00:00Z", "2026-01-05T13:01:00Z"],
+        "scale": ["5m"] * 2, "fold": ["fold01"] * 2,
+        "y_true": [0, 1], "p_up": [.2, .8],
+    })
+    missing_last = base.iloc[:1].copy()
+    with pytest.raises(ValueError, match="1 keys only on left"):
+        paired_metrics(base, missing_last)
 
 
 def test_unlabeled_context_counts_and_coverage_boundary():

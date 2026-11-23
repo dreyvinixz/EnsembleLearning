@@ -15,8 +15,8 @@ constraints.
 | Stage | Scope | State |
 |---|---|---|
 | #10 | Expanding walk-forward, classical baseline, shared metrics, immutable tracking and individual predictions | Implemented; exploratory Logistic Regression run on Linux; June untouched |
-| #11 | MLP/CNN/LSTM/GRU, independent per-scale and shared three-head MTL, causal sequences, early stopping, checkpoints | Trainer implemented; synthetic CUDA benchmark run on RTX 5060 Ti; real-data benchmark and training pending |
-| #12 | Voting, seed ensemble, temporal block bagging and OOF stacking | Not implemented |
+| #11 | MLP/CNN/LSTM/GRU, independent per-scale and shared three-head MTL, causal sequences, early stopping, checkpoints | Trainer integrated; exact pairing and full purged-block refit added in corrective branch; targeted CI and fresh post-refit runs pending |
+| #12 | Audit existing runs, paired statistics, Voting, seed ensemble, temporal block bagging and OOF stacking | Prior runs audited exploratorily; restart comparisons after Stage 11 refit validation |
 | Later | B0 label-quality analysis, regime/label disagreement, calibration, paired statistics; assess adaptive DAME only if evidence supports it | Not implemented as a complete analysis |
 | Final evaluation | Freeze protocol after development and May validation; train permitted final models and evaluate June once | Reserved; must not be used for debugging, tuning or selection |
 
