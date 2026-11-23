@@ -19,12 +19,12 @@ def test_parquet_to_baseline_and_session_boundary(tmp_path):
     for day in ("2026-01-02", "2026-04-30", "2026-05-04", "2026-06-01"):
         for index, stamp in enumerate(pd.date_range(day + " 16:00", periods=120, freq="min")):
             price = 100 + index * 0.1
-            rows.append(dict(instrument="WIN", asset_id=1, session_date=day,
-                             candle_start_local=stamp, open=price, high=price + 1,
-                             low=price - 1, close=price + 0.2, average=price,
-                             volume=index + 1, business=index + 1, amount_stock=index + 2,
-                             y_b0_5m=index % 2, y_b0_10m=index % 2,
-                             y_b0_15m=index % 2))
+            rows.append({"instrument": "WIN", "asset_id": 1, "session_date": day,
+                         "candle_start_local": stamp, "open": price, "high": price + 1,
+                         "low": price - 1, "close": price + 0.2, "average": price,
+                         "volume": index + 1, "business": index + 1, "amount_stock": index + 2,
+                         "y_b0_5m": index % 2, "y_b0_10m": index % 2,
+                         "y_b0_15m": index % 2})
     source = pd.DataFrame(rows)
     labels = ["y_b0_5m", "y_b0_10m", "y_b0_15m"]
     market = source.drop(columns=labels)
