@@ -42,6 +42,15 @@ def test_window_at_10am_uses_exact_previous_60_closed_minutes():
     assert windows.observed_candles[0] == 60
 
 
+def test_window_slots_normalize_microsecond_timestamp_units():
+    frame = _frame("2026-01-05", "09:01", 61)
+    for column in ("decision_time", "features_available_at"):
+        frame[column] = pd.to_datetime(frame[column]).dt.as_unit("us")
+    windows = _build(frame)
+    assert len(windows.anchors) == 2
+    assert windows.observed_candles.tolist() == [60, 60]
+
+
 def test_missing_minutes_are_not_filled_and_80_percent_gate_is_exact():
     frame = _frame("2026-01-05", "09:01", 80, set(range(13)))
     windows = _build(frame)

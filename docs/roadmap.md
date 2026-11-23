@@ -16,8 +16,9 @@ constraints.
 |---|---|---|
 | #10 | Expanding walk-forward, classical baseline, shared metrics, immutable tracking and individual predictions | Implemented; exploratory Logistic Regression run on Linux; June untouched |
 | #11 | MLP/CNN/LSTM/GRU, independent per-scale and shared three-head MTL, causal sequences, early stopping, checkpoints | Integrated in PR #11; exact population/y_true pairing, full purged-block refit, CI green, and 16 post-refit GPU runs audited |
-| #12 | Audit existing runs, paired statistics, Voting, seed ensemble, temporal block bagging and OOF stacking | Implemented and executed on Linux development data; PR/CI review pending; all comparisons exploratory |
-| Later | B0 label-quality analysis, regime/label disagreement, calibration, paired statistics; assess adaptive DAME only if evidence supports it | Not implemented as a complete analysis |
+| #12 | Audit existing runs, paired statistics, Voting, seed ensemble, temporal block bagging and OOF stacking | Merged to main (`528b74f`); development experiments executed, exploratory |
+| #12.1 | Neural diagnostics, complementarity, feature/contract ablations, statistical correction and external-benchmark plan | Active on `research/stage12.1-diagnostics`; figures and descriptive complementarity complete; feature ablation implemented but not run; Linux access unavailable |
+| #13 | Reproduce/adapt selected open-source benchmarks after protocol and license review | Specification only in `docs/stage13-external-benchmarks.md`; no model implemented |
 | Final evaluation | Freeze protocol after development and May validation; train permitted final models and evaluate June once | Reserved; must not be used for debugging, tuning or selection |
 
 ## Current split and model matrix
@@ -35,6 +36,12 @@ first decision at 10:00 local. The snapshot's simulated post-session label
 release is conservative but not historically observed. Any change to candle
 availability, label intervals, feature generation or splits requires targeted
 tests and an updated source manifest.
+
+The current 21 features are grouped into returns (5), candle/price shape (4),
+volatility (4), close-versus-SMA trend (4) and volume/activity (4). The Stage
+12.1 ablation runner compares full, group-only and leave-one-group-out sets
+while asserting identical anchor eligibility. Actual model ablation runs remain
+pending; protocol and budget are in `docs/experimental-budget-stage12.1.md`.
 
 ## Required gates
 

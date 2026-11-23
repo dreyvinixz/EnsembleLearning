@@ -1,0 +1,2 @@
+fold,architecture,strategy,seed,horizon,epoch,train_loss,validation_loss,validation_mcc,validation_accuracy,phase
+fold01,mlp,independent,42,5,1,0.5,0.6,0.2,0.6,

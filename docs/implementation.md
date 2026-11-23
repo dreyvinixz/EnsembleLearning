@@ -89,17 +89,23 @@ igualdade completa da população antes de calcular métricas pareadas.
 - A liberação pós-sessão de B0 é uma hipótese conservadora simulada; não é hora
   histórica observada. Origem/vintage e semântica do rótulo permanecem descritas
   em `auditoria-gerador-b0.md` e `disponibilidade-rotulos.md`.
-- O refit e a validação estrita de população foram implementados nesta correção;
-  16 execuções Linux e previsões pareadas anteriores existem, mas foram feitas
-  sem refit. Devem ser preservadas como exploratórias; novas execuções reais e
-  auditoria dos artefatos com este código são necessárias antes de comparar
-  métodos ou iniciar ensembles.
-- O runner de teste final de junho, seleção final após maio, calibração treinada
-  sem vazamento, ensembles, boosting comparativo, PCGrad e DAME não estão
-  implementados nesta etapa. Não executar junho durante desenvolvimento.
-- A matriz inclui 4 folds e uma seed por configuração, salvo execução explícita
-  adicional. Comparações confirmatórias e orçamento equitativo ainda precisam
-  ser congelados no protocolo.
+- O refit e a validação estrita de população foram implementados; 16 execuções
+  Linux pós-refit e comparações de Voting, Seed Ensemble, Block Bagging e
+  Stacking estão em `reports/stage12/`. Foram pareadas com as mesmas chaves e
+  classes, mas seguem exploratórias: duas seeds e intervalos sem correção de
+  multiplicidade.
+- A Etapa #12.1 acrescentou curvas de treino/validação, gráficos de MCC e
+  acurácia, análise de complementaridade e um executor de ablação por cinco
+  grupos de features. O script de ablação está implementado, ainda sem execução
+  real; ver `reports/stage12/diagnostics/REPORT.md`.
+- Permanecem pendentes: executar ablações no host Linux, testar orçamento neural
+  além de cinco épocas, adicionar seeds, estatística pareada com família de
+  contrastes pré-especificada e ajuste de multiplicidade, análise por regime e
+  PCGrad se houver evidência de conflito. Não executar junho durante
+  desenvolvimento.
+- `docs/experimental-budget-stage12.1.md` define a expansão progressiva na RTX
+  5060 Ti; `docs/stage13-external-benchmarks.md` especifica gates para CRAFT,
+  LOBCAST e TLOB. Nenhuma arquitetura Stage 13 foi implementada.
 
 ## Etapa #10 — Walk-forward e rastreamento de experimentos (2026-11-23)
 
@@ -115,9 +121,9 @@ previsões Parquet com probabilidades e identificador de amostra, tempos de ajus
 e inferência e checkpoints. As métricas incluem MCC, Accuracy, Balanced Accuracy,
 precision/recall/F1 por classe, Macro-F1, ROC-AUC, Average Precision, Brier,
 Log Loss, ECE em 10 bins e matriz de confusão. O MCC é a métrica principal
-provisória. Intervalos percentis de 95% por bootstrap de pregões são diagnósticos;
-comparações pareadas entre modelos e correção de múltiplas comparações ainda
-precisam ser implementadas antes de inferência confirmatória.
+provisória. Intervalos percentis de 95% por bootstrap de pregões são diagnósticos.
+Existem comparações pareadas Stage 12; permanecem exploratórias e sem correção
+de múltiplas comparações.
 
 Execução de referência no Linux `ginfolab-maquinario`:
 
@@ -135,9 +141,9 @@ Os resultados OOF de fevereiro–abril e validação de maio são separados nos 
 São baseline de desenvolvimento, não resultados de teste final nem comparação
 de métodos. Artefatos ficam ignorados pelo Git; o dado privado não foi versionado.
 
-Limitações remanescentes desta etapa: sem ajuste de hiperparâmetros/early stopping,
-calibração pós-treino, métricas por regime, risco seletivo, intervalos pareados,
-correção de multiplicidade ou renderização automática de figuras. A cobertura
+Limitações remanescentes: sem calibração pós-treino, métricas por regime ou
+risco seletivo. Os intervalos pareados e figuras Stage 12 já existem, porém a
+inferência segue exploratória e sem ajuste de multiplicidade. A cobertura
 temporal foi controlada por folds; disponibilidade real de rótulos permanece
 simulada pós-sessão. O roadmap atualizado está em `docs/roadmap.md`.
 

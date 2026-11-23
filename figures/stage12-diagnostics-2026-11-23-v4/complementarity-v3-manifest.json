@@ -1,0 +1,13 @@
+{
+  "summary_csv": "reports\\stage12\\diagnostics\\complementarity.csv",
+  "summary_sha256": "df51f025fa9156ee10896e75e2805d8e992e2797451a222c9c350c0c64fd425f",
+  "png_sha256": "7d922912f185fb41ab6fc849d37ab1d5c2a351d1ef9c3876faa69a9cdc495be4",
+  "pdf_sha256": "0a870e3a89b61750c6cf9cfe532568848ba6f4e4fbd489b1291005a833354baf",
+  "periods": [
+    "OOF March-April",
+    "May development validation"
+  ],
+  "comparison": "Exact paired Logistic Regression predictions by scale and period",
+  "June_accessed": false,
+  "inference": "Descriptive only; no confidence intervals or multiplicity correction."
+}

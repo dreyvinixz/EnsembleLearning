@@ -78,7 +78,9 @@ def build_causal_windows(
     labeled = frame[target_columns].notna().all(axis=1).to_numpy()
     candidates = np.flatnonzero(labeled & (local_clock >= first_decision).to_numpy())
     frame_index = frame.reset_index(drop=True)
-    decision_ns = decisions.astype("int64").to_numpy()
+    # Pandas may preserve a non-nanosecond datetime unit (for example us).
+    # Normalize explicitly because slot arithmetic below is expressed in ns.
+    decision_ns = decisions.to_numpy(dtype="datetime64[ns]").astype(np.int64)
     candidate_set = set(candidates.tolist())
     built: list[tuple[int, np.ndarray, int]] = []
 

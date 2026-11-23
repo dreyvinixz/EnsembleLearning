@@ -1,0 +1,33 @@
+{
+  "source_metrics_csv": "reports\\stage12\\refit-2026-11-23\\metrics_by_run_fold_scale.csv",
+  "source_metrics_sha256": "4b2741df19731308e031b336c898d6b4fbe9346ba1e21a0d94fe020843a378ec",
+  "source_history_csv": "reports\\stage12\\diagnostics\\training_history.csv",
+  "source_history_sha256": "6852a73dc46673d6afc5cbc7748b9affad1140aa650cc6530087ca9bb3c85362",
+  "summary_csv": "reports\\stage12\\diagnostics\\neural_metrics_summary.csv",
+  "summary_sha256": "6c383b150129366c57d0c6373681037b79eb1e14372015d005a4becb43daa24a",
+  "figure_sha256": {
+    "neural-accuracy.png": "b068ef9cfe61d41e1ea0da2727fc9b81a19731b4ea291ad02390664cb95c5b23",
+    "neural-learning-curves.png": "456307e57e858dc5b59391fba7ac0d5e6fa99ca5b9d72dc4d2460011920c66fc",
+    "neural-mcc.png": "1d9ccd19c71933bb9a2adb7f0c46bf12391d3ea56616311cdcfea89a17f3e0a9",
+    "neural-accuracy.pdf": "1fbfde58ca7fe08b9b0d06c3309ad47b36c4ca2a26279ce84f9026349e039103",
+    "neural-learning-curves.pdf": "28467f262cbe25f68dc459351e182e9e97578eef4384187ac449f0679509425c",
+    "neural-mcc.pdf": "dd10726131fc9916232093b4732a9e4dc8cae24dd55773f6015fc160f62c955e"
+  },
+  "periods": [
+    "OOF February-April",
+    "May development validation"
+  ],
+  "metrics_included": [
+    "MCC",
+    "accuracy",
+    "train loss",
+    "validation loss"
+  ],
+  "seeds": [
+    42,
+    43
+  ],
+  "June_accessed": false,
+  "uncertainty": "No confidence intervals in neural comparison figures; metrics are descriptive.",
+  "warning": "OOF February-April neural figure is not on the March-April-only Stage 12 stacking population."
+}
