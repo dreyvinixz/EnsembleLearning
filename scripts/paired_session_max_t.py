@@ -86,8 +86,6 @@ def select_ensemble_predictions(frame: pd.DataFrame, ensemble: str) -> pd.DataFr
 def max_t_comparisons(
     frames: dict[str, pd.DataFrame], *, iterations: int = 5000, seed: int = 42,
 ) -> pd.DataFrame:
-    aligned = align_methods(frames)
-    methods = list(aligned)
     results = []
     rng = np.random.default_rng(seed)
     period_fold_rules = {
@@ -95,21 +93,39 @@ def max_t_comparisons(
         "oof_mar_apr": lambda frame: frame.loc[frame.fold.isin(("fold02", "fold03"))],
         "validation_may": lambda frame: frame.loc[frame.fold.eq("fold04")],
     }
-    scales = sorted(set.intersection(*(set(frame.scale) for frame in aligned.values())))
     for period_name, filter_period in period_fold_rules.items():
+        period_frames = {
+            method: filter_period(frame)
+            for method, frame in frames.items()
+        }
+        period_frames = {method: frame for method, frame in period_frames.items() if not frame.empty}
+        excluded_methods = []
+        if period_name == "oof_feb_apr":
+            # Stacking has no fold01 prediction by design. Compare February-April
+            # on the common family that actually has predictions for that fold.
+            excluded_methods = sorted(
+                method for method, frame in period_frames.items()
+                if not frame.fold.eq("fold01").any()
+            )
+            period_frames = {
+                method: frame for method, frame in period_frames.items()
+                if method not in excluded_methods
+            }
+        if len(period_frames) < 2:
+            continue
+        aligned_period = align_methods(period_frames)
+        methods = list(aligned_period)
+        scales = sorted(set.intersection(*(set(frame.scale) for frame in aligned_period.values())))
         for scale in scales:
             group_frames = {
-                method: filter_period(frame).loc[filter_period(frame).scale.eq(scale)].copy()
-                for method, frame in aligned.items()
+                method: frame.loc[frame.scale.eq(scale)].copy()
+                for method, frame in aligned_period.items()
             }
             if any(frame.empty for frame in group_frames.values()):
                 continue
             common_group = align_methods(group_frames)
+            methods = list(common_group)
             reference = common_group[methods[0]]
-            if period_name == "oof_feb_apr" and not reference.fold.eq("fold01").any():
-                # A method such as OOF stacking has no prediction for its first fold.
-                # Its exact common OOF population is reported separately as March-April.
-                continue
             sessions = sorted(reference.session_date.unique())
             if len(sessions) < 2:
                 raise ValueError(f"Need at least two sessions for {period_name}/{scale}")
@@ -163,6 +179,8 @@ def max_t_comparisons(
                 results.append({
                     "period": period_name, "scale": scale, "metric": metric_name,
                     "left_method": methods[left], "right_method": methods[right],
+                    "method_count": len(methods),
+                    "methods_excluded_for_period": ",".join(excluded_methods),
                     "n": len(reference), "n_sessions": len(sessions),
                     "left_score": float(scores[left]), "right_score": float(scores[right]),
                     "difference_left_minus_right": float(delta), "bootstrap_se": se,
@@ -198,7 +216,7 @@ def main() -> int:
         if not separator or not name or not raw_path or name in sources:
             parser.error(f"Invalid/duplicate --prediction entry: {item}")
         path = Path(raw_path)
-        sources[name] = pd.read_parquet(path)
+        sources[name] = pd.read_parquet(path, columns=REQUIRED)
         paths[name] = [path]
         source_descriptors[name] = {"path": str(path)}
     for item in args.ensemble_prediction:
@@ -209,7 +227,7 @@ def main() -> int:
         if not comma or not raw_path or not ensemble_key:
             parser.error("--ensemble-prediction must use NAME=PARQUET,ENSEMBLE_KEY")
         path = Path(raw_path)
-        artifact = pd.read_parquet(path)
+        artifact = pd.read_parquet(path, columns=[*REQUIRED, "ensemble"])
         sources[name] = select_ensemble_predictions(artifact, ensemble_key)
         paths[name] = [path]
         source_descriptors[name] = {"path": str(path), "ensemble_key": ensemble_key}

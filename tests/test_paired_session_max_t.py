@@ -6,7 +6,6 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
     "paired_session_max_t", ROOT / "scripts/paired_session_max_t.py"
@@ -73,3 +72,21 @@ def test_select_ensemble_predictions_requires_exact_key():
     source["ensemble"] = "available"
     with pytest.raises(ValueError, match="No predictions found"):
         MODULE.select_ensemble_predictions(source, "missing")
+
+
+def test_february_april_uses_methods_with_first_oof_fold_only():
+    method_a = _predictions([.8, .2, .7, .3, .6])
+    method_b = method_a.loc[method_a.fold.ne("fold01")].reset_index(drop=True)
+    method_c = _predictions([.7, .3, .6, .4, .5])
+
+    results = MODULE.max_t_comparisons(
+        {"a": method_a, "b_stacking": method_b, "c": method_c},
+        iterations=1000,
+        seed=11,
+    )
+
+    feb_apr = results.loc[results.period.eq("oof_feb_apr")]
+    mar_apr = results.loc[results.period.eq("oof_mar_apr")]
+    assert set(feb_apr.method_count) == {2}
+    assert set(feb_apr.left_method) | set(feb_apr.right_method) == {"a", "c"}
+    assert set(mar_apr.method_count) == {3}

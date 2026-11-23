@@ -1,0 +1,272 @@
+{
+  "method": "paired session bootstrap max-T simultaneous intervals",
+  "source_commit": "528b74f090cbbba0c8cfeb0b850d7c29a920deb2",
+  "snapshot_sha256": "a3c9ea7ff2d9fe9c103a06a5ff211e41ebccb1ce081fe46c8f55e6e70bc2ca91",
+  "manifest_sha256_by_experiment": {
+    "EXP_STAGE11_PAIR_CLASSICAL_42": "5aacbaf5049aea528b786df45b50d4034709d8368558e145bdf3d550de4421dd",
+    "EXP_STAGE11_REFIT_MLP_INDEPENDENT_42": "1694202e0e4c43e52ca362323e5e8a0c0d0fc6986cda84cfda89632685abc967",
+    "EXP_STAGE11_REFIT_MLP_INDEPENDENT_43": "75e3f794d18ffe42ca0016300895710ca6c83b2981e82203ade04f37e173f638",
+    "EXP_STAGE11_REFIT_MLP_MTL_42": "c036693fb03390139ba75480276358bf1f2c0fecce59d40637c1e1cc3fc06dc6",
+    "EXP_STAGE11_REFIT_MLP_MTL_43": "646f8662dfcecca8937147c17d70a3fb4085f746bc077dad10387f25226b8d48",
+    "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_42": "d08668d1984f85690ef0240ed4398b50312619629800d9063bce33f2b0d7ee05",
+    "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_43": "1babd8b15b7bc17764e078e72e94332705357c7999a0d3b3ae2576b6241d27ce",
+    "EXP_STAGE11_REFIT_CNN1D_MTL_42": "d53fffcee3edb12a36bd6caf2ede88b3b9db523b7584a756f9a0629be725cc76",
+    "EXP_STAGE11_REFIT_CNN1D_MTL_43": "b942caad7ce642e643c27480bcafeba2d4dde2f63d2d8adb44d8960b7d541002",
+    "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_42": "e5f554abc2963b47c3e1cfaed987b030eeac3bd82ea1f35bddb49d94927bb18b",
+    "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_43": "d110b6fc39b209d7e634b84084a0f2534e090e15f2824dfeef99937bd8578e0c",
+    "EXP_STAGE11_REFIT_LSTM_MTL_42": "9d9129cb2c8c58d01d812ca554668f044718a7a3aff3a06ddfdbc04d561ac4e9",
+    "EXP_STAGE11_REFIT_LSTM_MTL_43": "3b84abea6d9a4563cf67b72928fb8a79071cd8a92d9a2f6275f8eb922789d5ba",
+    "EXP_STAGE11_REFIT_GRU_INDEPENDENT_42": "93609a508a2ad5ae109ed52987e9234181af13dc1c1adb6baa5d42609d7692ad",
+    "EXP_STAGE11_REFIT_GRU_INDEPENDENT_43": "52a865f1437557e9327f6e1c3f4a35c71fdd1fe01f3abac904c31f65e7cfe29d",
+    "EXP_STAGE11_REFIT_GRU_MTL_42": "bf8447a82412d701fe47998b1289bd280d680c75529a27039952d8eb8883a539",
+    "EXP_STAGE11_REFIT_GRU_MTL_43": "19da37391ac2b67d1288796a4546f82734788d840827126c5b0f71b89aeb37b5",
+    "EXP_STAGE12_AVERAGING_20261123": "3911571f9129503628b10da14b4efe401f0d9342f6b9a61fbb68477dda60ca22",
+    "EXP_STAGE12_BLOCKBAG_LOGREG_B5_M10_V2_20261123": "992231ed4b4d2dbd80f3bea467955c28f640a29770dd4d37d9a43630a5aa17a8",
+    "EXP_STAGE12_STACKING_20261123": "93043a3adf451ca7d43a3111c44a26fee78fd3cd164e5e3cab5396e1abbdf9c3"
+  },
+  "sources": {
+    "LogisticRegression": {
+      "experiment": "EXP_STAGE11_PAIR_CLASSICAL_42",
+      "artifact": "predictions.parquet"
+    },
+    "MLP_INDEPENDENT_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_MLP_INDEPENDENT_42",
+      "artifact": "predictions.parquet"
+    },
+    "MLP_INDEPENDENT_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_MLP_INDEPENDENT_43",
+      "artifact": "predictions.parquet"
+    },
+    "MLP_MTL_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_MLP_MTL_42",
+      "artifact": "predictions.parquet"
+    },
+    "MLP_MTL_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_MLP_MTL_43",
+      "artifact": "predictions.parquet"
+    },
+    "CNN1D_INDEPENDENT_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_42",
+      "artifact": "predictions.parquet"
+    },
+    "CNN1D_INDEPENDENT_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_43",
+      "artifact": "predictions.parquet"
+    },
+    "CNN1D_MTL_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_CNN1D_MTL_42",
+      "artifact": "predictions.parquet"
+    },
+    "CNN1D_MTL_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_CNN1D_MTL_43",
+      "artifact": "predictions.parquet"
+    },
+    "LSTM_INDEPENDENT_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_42",
+      "artifact": "predictions.parquet"
+    },
+    "LSTM_INDEPENDENT_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_43",
+      "artifact": "predictions.parquet"
+    },
+    "LSTM_MTL_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_LSTM_MTL_42",
+      "artifact": "predictions.parquet"
+    },
+    "LSTM_MTL_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_LSTM_MTL_43",
+      "artifact": "predictions.parquet"
+    },
+    "GRU_INDEPENDENT_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_GRU_INDEPENDENT_42",
+      "artifact": "predictions.parquet"
+    },
+    "GRU_INDEPENDENT_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_GRU_INDEPENDENT_43",
+      "artifact": "predictions.parquet"
+    },
+    "GRU_MTL_seed42": {
+      "experiment": "EXP_STAGE11_REFIT_GRU_MTL_42",
+      "artifact": "predictions.parquet"
+    },
+    "GRU_MTL_seed43": {
+      "experiment": "EXP_STAGE11_REFIT_GRU_MTL_43",
+      "artifact": "predictions.parquet"
+    },
+    "SeedEnsemble_MLP_INDEPENDENT": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_mlp_independent"
+    },
+    "SeedEnsemble_MLP_MTL": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_mlp_mtl"
+    },
+    "SeedEnsemble_CNN1D_INDEPENDENT": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_cnn1d_independent"
+    },
+    "SeedEnsemble_CNN1D_MTL": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_cnn1d_mtl"
+    },
+    "SeedEnsemble_LSTM_INDEPENDENT": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_lstm_independent"
+    },
+    "SeedEnsemble_LSTM_MTL": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_lstm_mtl"
+    },
+    "SeedEnsemble_GRU_INDEPENDENT": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_gru_independent"
+    },
+    "SeedEnsemble_GRU_MTL": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "seed_ensemble_gru_mtl"
+    },
+    "Voting": {
+      "experiment": "EXP_STAGE12_AVERAGING_20261123",
+      "artifact": "predictions.parquet",
+      "ensemble_key": "soft_voting_all_architectures_strategies"
+    },
+    "BlockBagging": {
+      "experiment": "EXP_STAGE12_BLOCKBAG_LOGREG_B5_M10_V2_20261123",
+      "artifact": "predictions.parquet"
+    },
+    "Stacking": {
+      "experiment": "EXP_STAGE12_STACKING_20261123",
+      "artifact": "predictions.parquet"
+    }
+  },
+  "prediction_sha256_by_experiment": {
+    "EXP_STAGE11_PAIR_CLASSICAL_42": "cf29ce2dfeccdea9fc6bbb6177f6b01da70ad9d4f726182d2809c68566216c49",
+    "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_42": "575381dfef1e62245730752b6f61dde1b7e85d53aae5cd168ac6eda3b93fbbb0",
+    "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_43": "d1bb718a1b10eaeabe0cf5103caa54525f91979c58dd97c99e1e88d05086c79f",
+    "EXP_STAGE11_REFIT_CNN1D_MTL_42": "7a3a3aa3a118643241907291c686d9841251b18ec739b6fa90ff08ca7b584503",
+    "EXP_STAGE11_REFIT_CNN1D_MTL_43": "9a2d452304be0ca4098646fd71bf56fe1f6e27163543e0b1aee278adde899c55",
+    "EXP_STAGE11_REFIT_GRU_INDEPENDENT_42": "351fde1b04bbfea9a069ef41467ad0dfe3616fbc85c4c4e1e0800442913c28b0",
+    "EXP_STAGE11_REFIT_GRU_INDEPENDENT_43": "900437eebd43ba50e35554c35b975431c045d96d57dd6e29ed6342d54dabd253",
+    "EXP_STAGE11_REFIT_GRU_MTL_42": "a3fd76ace9d6d7fdf9125d9b2fa4fc80d29f5313ac2865c8ff044b51cf5b7b8f",
+    "EXP_STAGE11_REFIT_GRU_MTL_43": "c21a6781f3afd88ed6855228df4f224e0ccd245b26017d7a9c859e46b018cc29",
+    "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_42": "e36cabf1439fc1a1d1464258beb6c5592e10a2a164194f6c61ed44d4e103b32c",
+    "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_43": "fc8dea8259d6d44140994cbe38ac8b2c13d7766d18770d16430f1c7fde7be1c0",
+    "EXP_STAGE11_REFIT_LSTM_MTL_42": "8c8e57de3c206ca73d57598344f4fe2927189813bb8f235a089117e8dd084859",
+    "EXP_STAGE11_REFIT_LSTM_MTL_43": "783e462bc90535f576c79361497a95ee682ae45530f81c7d86f6f89966acf377",
+    "EXP_STAGE11_REFIT_MLP_INDEPENDENT_42": "52d716c1b36f7d983597f4e3b36bcf3e535d29ba654cf34d7235e60950c4446f",
+    "EXP_STAGE11_REFIT_MLP_INDEPENDENT_43": "f8ddf705a2dbb192ac174e5adafa81bc1b3ae79ce28167efe1af9e8979196375",
+    "EXP_STAGE11_REFIT_MLP_MTL_42": "9e86c9022f9bdb00907eabfe25d846561cba61aea86deab3f718d7fd5ad040a6",
+    "EXP_STAGE11_REFIT_MLP_MTL_43": "852f6b6a6e13d1fdaecc00ab7bc314c8f566925bb20af4a18849c5f1785d84e9",
+    "EXP_STAGE12_AVERAGING_20261123": "d0fd525482f68eb83ef5ab36387259c1af5fbde168b7f98d3aba5c68373c03cf",
+    "EXP_STAGE12_BLOCKBAG_LOGREG_B5_M10_V2_20261123": "fbea61e96b42f7106086be5de17a3562efca72c076e0be748ae4e4ee2ab09ad7",
+    "EXP_STAGE12_STACKING_20261123": "36f9d709855d8049efd597c709517b5e56f942210bf971cd00ed3a6b056caa68"
+  },
+  "methods": [
+    "LogisticRegression",
+    "MLP_INDEPENDENT_seed42",
+    "MLP_INDEPENDENT_seed43",
+    "MLP_MTL_seed42",
+    "MLP_MTL_seed43",
+    "CNN1D_INDEPENDENT_seed42",
+    "CNN1D_INDEPENDENT_seed43",
+    "CNN1D_MTL_seed42",
+    "CNN1D_MTL_seed43",
+    "LSTM_INDEPENDENT_seed42",
+    "LSTM_INDEPENDENT_seed43",
+    "LSTM_MTL_seed42",
+    "LSTM_MTL_seed43",
+    "GRU_INDEPENDENT_seed42",
+    "GRU_INDEPENDENT_seed43",
+    "GRU_MTL_seed42",
+    "GRU_MTL_seed43",
+    "SeedEnsemble_MLP_INDEPENDENT",
+    "SeedEnsemble_MLP_MTL",
+    "SeedEnsemble_CNN1D_INDEPENDENT",
+    "SeedEnsemble_CNN1D_MTL",
+    "SeedEnsemble_LSTM_INDEPENDENT",
+    "SeedEnsemble_LSTM_MTL",
+    "SeedEnsemble_GRU_INDEPENDENT",
+    "SeedEnsemble_GRU_MTL",
+    "Voting",
+    "BlockBagging",
+    "Stacking"
+  ],
+  "method_count": 28,
+  "iterations": 5000,
+  "seed": 42,
+  "primary_metric": "MCC",
+  "secondary_metric": "accuracy",
+  "decision_threshold": 0.5,
+  "multiplicity": "95% max absolute studentized bootstrap deviation across all pairwise method contrasts and both metrics within each period-scale family",
+  "period_method_counts": {
+    "oof_feb_apr/10m": 27,
+    "oof_feb_apr/15m": 27,
+    "oof_feb_apr/5m": 27,
+    "oof_mar_apr/10m": 28,
+    "oof_mar_apr/15m": 28,
+    "oof_mar_apr/5m": 28,
+    "validation_may/10m": 28,
+    "validation_may/15m": 28,
+    "validation_may/5m": 28
+  },
+  "period_sample_counts": {
+    "oof_feb_apr/10m": {
+      "n": 44702,
+      "sessions": 59
+    },
+    "oof_feb_apr/15m": {
+      "n": 44702,
+      "sessions": 59
+    },
+    "oof_feb_apr/5m": {
+      "n": 44702,
+      "sessions": 59
+    },
+    "oof_mar_apr/10m": {
+      "n": 32066,
+      "sessions": 42
+    },
+    "oof_mar_apr/15m": {
+      "n": 32066,
+      "sessions": 42
+    },
+    "oof_mar_apr/5m": {
+      "n": 32066,
+      "sessions": 42
+    },
+    "validation_may/10m": {
+      "n": 11998,
+      "sessions": 17
+    },
+    "validation_may/15m": {
+      "n": 11998,
+      "sessions": 17
+    },
+    "validation_may/5m": {
+      "n": 11998,
+      "sessions": 17
+    }
+  },
+  "common_keys": [
+    "instrument",
+    "session_date",
+    "decision_time",
+    "scale",
+    "fold"
+  ],
+  "y_true_equality_required": true,
+  "June_accessed": false,
+  "contains_row_level_predictions": false,
+  "script_sha256": "97acc5be76197cb37ce54b03d8ec4d1347f8194beb9a49907893ef08563766e7",
+  "comparison_script_sha256": "d54966050aa9185c970ca4dbf5447b6a9abcc5f8d5baf1ca370e1ef3e443b92b",
+  "output_sha256": "cc6717fef60a1dfe2a5c9fb01eca02a50a27f89a320f07686cc901eca9058182",
+  "interpretation": "Exploratory simultaneous intervals; method families and contrasts were not frozen as confirmatory hypotheses."
+}
