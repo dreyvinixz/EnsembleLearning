@@ -1,6 +1,6 @@
 """Synthetic fixtures only; these are not empirical BovDB results."""
 
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import UTC, date, datetime, time, timedelta
 
 import pandas as pd
 import pytest
@@ -12,7 +12,7 @@ def sample_frame() -> pd.DataFrame:
     for day in range(12):
         session = date(2026, 1, 5) + timedelta(days=day)
         for minute in range(8):
-            t = datetime.combine(session, time(14, 0), tzinfo=timezone.utc) + timedelta(minutes=minute)
+            t = datetime.combine(session, time(14, 0), tzinfo=UTC) + timedelta(minutes=minute)
             row = {
                 "instrument": "SYNTH",
                 "session_date": session.isoformat(),
