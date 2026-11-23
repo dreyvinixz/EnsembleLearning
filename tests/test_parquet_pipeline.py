@@ -10,7 +10,7 @@ from ensemble_learning.contracts import validate_frame
 from ensemble_learning.splits import dated_holdout
 
 
-def test_parquet_to_baseline_and_session_boundary(tmp_path):
+def test_parquet_to_baseline_and_session_boundary(tmp_path, monkeypatch):
     path = Path(__file__).resolve().parents[1] / "scripts/prepare_b0_baseline_snapshot.py"
     spec = importlib.util.spec_from_file_location("snapshot_builder", path)
     builder = importlib.util.module_from_spec(spec)
@@ -29,13 +29,16 @@ def test_parquet_to_baseline_and_session_boundary(tmp_path):
     labels = ["y_b0_5m", "y_b0_10m", "y_b0_15m"]
     market = source.drop(columns=labels)
     label_data = source[["instrument", "asset_id", "session_date", "candle_start_local"] + labels]
-    market.to_parquet(tmp_path / "market.parquet")
-    label_data.to_parquet(tmp_path / "labels.parquet")
-    snapshot = builder.make_snapshot(pd.read_parquet(tmp_path / "market.parquet"),
-                                     pd.read_parquet(tmp_path / "labels.parquet"))
-    for column in snapshot.select_dtypes(include=["datetimetz"]).columns:
-        snapshot[column] = snapshot[column].map(lambda value: value.isoformat())
-    snapshot.to_csv(tmp_path / "snapshot.csv", index=False)
+    market.to_parquet(tmp_path / "market_candles.parquet")
+    label_data.to_parquet(tmp_path / "b0_targets_retrospective.parquet")
+    monkeypatch.setattr(builder, "BASE", tmp_path)
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    monkeypatch.setattr("sys.argv", ["prepare", "--output", str(tmp_path / "snapshot.csv")])
+    builder.main()
+    before = (tmp_path / "snapshot.csv").read_bytes()
+    with pytest.raises(FileExistsError):
+        builder.main()
+    assert (tmp_path / "snapshot.csv").read_bytes() == before
     raw = pd.read_csv(tmp_path / "snapshot.csv")
     assert raw.decision_time.str.endswith("-03:00").all()
     assert raw.decision_time.str.contains("T18:00:00-03:00").sum() == 4
