@@ -65,3 +65,30 @@ Gerar previsões out-of-fold estritamente cronológicas para treinar metamodelos
 Relatar desempenho por horizonte, classe, ativo e regime com suporte e cobertura, além de métrica principal e medidas complementares de classificação e calibração escolhidas antes da avaliação. Usar baselines simples, matriz de confusão, perdas probabilísticas e custo computacional quando aplicáveis. Comparar métodos e versões de rótulos em folds e unidades comuns; estimar interação método × rotulagem com contrastes pareados e intervalos de confiança. Observações intradiárias são dependentes: definir antes unidade de inferência e reamostragem em blocos de tempo/sessões, preservando pareamento e dependência entre ativos. Não tratar candles como réplicas independentes; poucos folds limitam conclusões. Pré-especificar comparações principais, ajuste de multiplicidade e tratamento de resultados ausentes.
 
 Se houver avaliação econômica, definir previamente execução, custos, slippage, restrições e disponibilidade; classificação superior não demonstra lucratividade. Não interpretar associação como causalidade sem desenho adequado.
+
+## Atualização Stage 12 — matriz pós-refit
+
+MCC permanece a métrica principal com limiar fixo 0,5; Macro-F1, ROC-AUC, Average Precision, Brier e Log Loss são complementares. A matriz pós-refit foi comparada em população completa e comum. Os intervalos de bootstrap por sessão e todas as comparações de modelo seguem exploratórios: 16 runs, duas seeds, quatro folds e nenhum ajuste de multiplicidade. Resultados de maio são validação de desenvolvimento; não usar para treinar modelos de combinação quando se reportar avaliação externa.
+
+## Atualização Stage 12 — ensembles
+
+Voting combina por média uniforme as probabilidades dos oito Seed Ensembles
+(MLP, CNN1D, LSTM e GRU × Independent/MTL); cada Seed Ensemble faz média
+uniforme entre seeds 42 e 43 da mesma configuração. Não há pesos ou limiares
+aprendidos com maio. O Block Bagging de controle usa Logistic Regression,
+10 membros por fold/escala, blocos móveis de cinco sessões e média de
+probabilidades, com seed base 42.
+
+O stacking usa Logistic Regression por escala sobre as probabilidades dos oito
+Seed Ensembles. A agenda é estritamente cronológica: fold01 treina o metamodelo
+de fold02; folds01–02 treinam o de fold03; folds01–03 treinam o modelo avaliado
+em maio (fold04). Fold01 não tem previsão de stacking. Maio não participa de
+ajuste ou escolha e junho permanece intocado. As populações agregadas foram
+pareadas ao baseline e checadas por chaves e `y_true`.
+
+Bootstrap pareado por sessão, 5.000 reamostragens, IC percentil 95% e sem ajuste
+de multiplicidade são análises exploratórias. Voting e stacking não mostraram
+diferenças claras contra Logistic Regression; Block Bagging teve dois ICs
+exploratórios de maio excluindo zero em direções opostas. Não concluir ganho
+geral desses resultados. Ver relatórios em `reports/stage12/`. O Git não contém
+previsões completas de dados privados nem checkpoints.

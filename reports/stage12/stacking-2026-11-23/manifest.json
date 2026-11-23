@@ -1,0 +1,391 @@
+{
+  "method": "per-scale LogisticRegression stacker on earlier-fold seed-ensemble probabilities",
+  "base_prediction_manifest_sha256": "3911571f9129503628b10da14b4efe401f0d9342f6b9a61fbb68477dda60ca22",
+  "base_predictions_sha256": "d0fd525482f68eb83ef5ab36387259c1af5fbde168b7f98d3aba5c68373c03cf",
+  "baseline_manifest_sha256": "5aacbaf5049aea528b786df45b50d4034709d8368558e145bdf3d550de4421dd",
+  "snapshot_sha256": "a3c9ea7ff2d9fe9c103a06a5ff211e41ebccb1ce081fe46c8f55e6e70bc2ca91",
+  "meta_features": [
+    "p_seed_ensemble_cnn1d_independent",
+    "p_seed_ensemble_cnn1d_mtl",
+    "p_seed_ensemble_gru_independent",
+    "p_seed_ensemble_gru_mtl",
+    "p_seed_ensemble_lstm_independent",
+    "p_seed_ensemble_lstm_mtl",
+    "p_seed_ensemble_mlp_independent",
+    "p_seed_ensemble_mlp_mtl"
+  ],
+  "chronological_schedule": [
+    {
+      "prediction_fold": "fold02",
+      "meta_train_folds": [
+        "fold01"
+      ]
+    },
+    {
+      "prediction_fold": "fold03",
+      "meta_train_folds": [
+        "fold01",
+        "fold02"
+      ]
+    },
+    {
+      "prediction_fold": "fold04",
+      "meta_train_folds": [
+        "fold01",
+        "fold02",
+        "fold03"
+      ]
+    }
+  ],
+  "fold01_predictions": "not produced: no prior OOF folds exist for meta-training",
+  "may_used_for_meta_training": false,
+  "june_accessed": false,
+  "rows": 132192,
+  "prediction_periods": [
+    "fold02 March",
+    "fold03 April",
+    "fold04 May validation"
+  ],
+  "fit_records": [
+    {
+      "scale": "5m",
+      "prediction_fold": "fold02",
+      "meta_train_folds": [
+        "fold01"
+      ],
+      "n_meta_train": 12636,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-02-27",
+      "prediction_start": "2026-03-02",
+      "prediction_end": "2026-03-31",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        -0.6979797558769119,
+        -0.3942429602806321,
+        0.6146838153852336,
+        -0.3975812710055992,
+        5.042645355216204,
+        -0.939453862734308,
+        -0.2003616439280603,
+        1.212329676146253
+      ],
+      "intercept": -1.8726202899984468,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "5m",
+      "prediction_fold": "fold03",
+      "meta_train_folds": [
+        "fold01",
+        "fold02"
+      ],
+      "n_meta_train": 30983,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-03-31",
+      "prediction_start": "2026-04-01",
+      "prediction_end": "2026-04-30",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        1.9869815099845562,
+        -2.095202074604126,
+        0.7958457160566617,
+        -0.17644756673675302,
+        5.31488548636431,
+        -1.3791037221612379,
+        -0.3216910220149571,
+        1.1249311841063314
+      ],
+      "intercept": -2.5067609781015903,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "5m",
+      "prediction_fold": "fold04",
+      "meta_train_folds": [
+        "fold01",
+        "fold02",
+        "fold03"
+      ],
+      "n_meta_train": 44702,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-04-30",
+      "prediction_start": "2026-05-04",
+      "prediction_end": "2026-05-29",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        2.3404654794782944,
+        -2.396328585133983,
+        0.5424993745572914,
+        0.552614382844915,
+        4.0679294223769284,
+        -0.41792173932246096,
+        0.007330183428036312,
+        0.5420068770217302
+      ],
+      "intercept": -2.5787275413479143,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "10m",
+      "prediction_fold": "fold02",
+      "meta_train_folds": [
+        "fold01"
+      ],
+      "n_meta_train": 12636,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-02-27",
+      "prediction_start": "2026-03-02",
+      "prediction_end": "2026-03-31",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        -1.9230392211089662,
+        1.4228909926550546,
+        -2.833359251033025,
+        2.553505259414723,
+        0.742685821388831,
+        2.95082188412528,
+        0.5956282317119216,
+        0.731705346179519
+      ],
+      "intercept": -1.9311205557010651,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "10m",
+      "prediction_fold": "fold03",
+      "meta_train_folds": [
+        "fold01",
+        "fold02"
+      ],
+      "n_meta_train": 30983,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-03-31",
+      "prediction_start": "2026-04-01",
+      "prediction_end": "2026-04-30",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        0.9073939598448235,
+        -0.4055429319044059,
+        -0.3701818797952112,
+        2.2356792047233034,
+        -0.6169081042008588,
+        2.3034198371108374,
+        0.7422911467942742,
+        0.5615975777729773
+      ],
+      "intercept": -2.568463192289105,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "10m",
+      "prediction_fold": "fold04",
+      "meta_train_folds": [
+        "fold01",
+        "fold02",
+        "fold03"
+      ],
+      "n_meta_train": 44702,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-04-30",
+      "prediction_start": "2026-05-04",
+      "prediction_end": "2026-05-29",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        0.5083514940810624,
+        -0.31952910617094904,
+        -0.7903497341461776,
+        2.470083664138864,
+        -0.12678818048663998,
+        2.3011889096326854,
+        0.7429356991151087,
+        0.3197406306865838
+      ],
+      "intercept": -2.455833334362932,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "15m",
+      "prediction_fold": "fold02",
+      "meta_train_folds": [
+        "fold01"
+      ],
+      "n_meta_train": 12636,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-02-27",
+      "prediction_start": "2026-03-02",
+      "prediction_end": "2026-03-31",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        1.4863602406360295,
+        -0.10868650412645019,
+        0.7046985962470821,
+        1.0020296735560976,
+        -2.9676131813089426,
+        3.880530501755558,
+        0.27811861838771407,
+        1.3353891387385097
+      ],
+      "intercept": -2.5297193563639073,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "15m",
+      "prediction_fold": "fold03",
+      "meta_train_folds": [
+        "fold01",
+        "fold02"
+      ],
+      "n_meta_train": 30983,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-03-31",
+      "prediction_start": "2026-04-01",
+      "prediction_end": "2026-04-30",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        1.0389305998926603,
+        -0.799528542742022,
+        -1.4636930668700603,
+        3.450279297005848,
+        -1.4095833713174988,
+        2.2543369081798352,
+        0.08300922620731324,
+        1.8017986462123403
+      ],
+      "intercept": -2.2981242144932676,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    },
+    {
+      "scale": "15m",
+      "prediction_fold": "fold04",
+      "meta_train_folds": [
+        "fold01",
+        "fold02",
+        "fold03"
+      ],
+      "n_meta_train": 44702,
+      "meta_train_start": "2026-02-02",
+      "meta_train_end": "2026-04-30",
+      "prediction_start": "2026-05-04",
+      "prediction_end": "2026-05-29",
+      "features": [
+        "p_seed_ensemble_cnn1d_independent",
+        "p_seed_ensemble_cnn1d_mtl",
+        "p_seed_ensemble_gru_independent",
+        "p_seed_ensemble_gru_mtl",
+        "p_seed_ensemble_lstm_independent",
+        "p_seed_ensemble_lstm_mtl",
+        "p_seed_ensemble_mlp_independent",
+        "p_seed_ensemble_mlp_mtl"
+      ],
+      "coefficient": [
+        0.2539414973706619,
+        0.1879855514481961,
+        -0.4974011464907851,
+        2.852785925283858,
+        -1.3118754938538881,
+        1.9788577583967866,
+        0.010433589160344453,
+        1.644610633042882
+      ],
+      "intercept": -2.3863134284009018,
+      "C": 1.0,
+      "class_weight": null,
+      "random_state": 42
+    }
+  ],
+  "bootstrap": {
+    "unit": "session_date",
+    "iterations": 5000,
+    "seed_base": 42,
+    "multiplicity_adjustment": null
+  },
+  "interpretation": "Exploratory; meta-model is trained only on predictions from strictly earlier OOF folds."
+}

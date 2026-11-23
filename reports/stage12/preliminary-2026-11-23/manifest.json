@@ -1,0 +1,55 @@
+{
+  "snapshot_sha256": "a3c9ea7ff2d9fe9c103a06a5ff211e41ebccb1ce081fe46c8f55e6e70bc2ca91",
+  "experiments": [
+    "EXP_STAGE11_MLP_INDEPENDENT_42",
+    "EXP_STAGE11_MLP_INDEPENDENT_43",
+    "EXP_STAGE11_MLP_MTL_42",
+    "EXP_STAGE11_MLP_MTL_43",
+    "EXP_STAGE11_CNN1D_INDEPENDENT_42",
+    "EXP_STAGE11_CNN1D_INDEPENDENT_43",
+    "EXP_STAGE11_CNN1D_MTL_42",
+    "EXP_STAGE11_CNN1D_MTL_43",
+    "EXP_STAGE11_LSTM_INDEPENDENT_42",
+    "EXP_STAGE11_LSTM_INDEPENDENT_43",
+    "EXP_STAGE11_LSTM_MTL_42",
+    "EXP_STAGE11_LSTM_MTL_43",
+    "EXP_STAGE11_GRU_INDEPENDENT_42",
+    "EXP_STAGE11_GRU_INDEPENDENT_43",
+    "EXP_STAGE11_GRU_MTL_42",
+    "EXP_STAGE11_GRU_MTL_43"
+  ],
+  "baseline": "EXP_STAGE11_PAIR_CLASSICAL_42",
+  "all_populations_equal": true,
+  "predictions_per_experiment": 170100,
+  "June_accessed": false,
+  "primary_metric": "MCC, fixed threshold 0.5; exploratory until protocol freeze",
+  "secondary_metrics": [
+    "macro_f1",
+    "roc_auc",
+    "average_precision",
+    "brier",
+    "log_loss",
+    "balanced_accuracy",
+    "accuracy"
+  ],
+  "statistical_method": "paired cluster bootstrap resampling session_date with replacement",
+  "bootstrap_iterations": 5000,
+  "bootstrap_seed_base": 42,
+  "multiplicity_adjustment": null,
+  "interpretation": "Exploratory intervals; do not use June for selection or tuning.",
+  "source_commits": [
+    "6450d0e417cf02cfad08a50601a8660f5ed10668"
+  ],
+  "training_configuration": {
+    "device": "NVIDIA GeForce RTX 5060 Ti (CUDA)",
+    "precision": "fp32",
+    "batch_size": 256,
+    "epochs_max": 5,
+    "early_stopping_patience": 2,
+    "seeds": [
+      42,
+      43
+    ],
+    "folds_per_run": 4
+  }
+}

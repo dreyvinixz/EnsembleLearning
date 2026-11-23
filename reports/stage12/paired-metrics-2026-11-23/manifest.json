@@ -1,0 +1,52 @@
+{
+  "periods": {
+    "OOF March-April": [
+      "fold02",
+      "fold03"
+    ],
+    "May validation": [
+      "fold04"
+    ]
+  },
+  "methods": {
+    "Logistic Regression": [
+      "EXP_STAGE11_PAIR_CLASSICAL_42",
+      null
+    ],
+    "Voting": [
+      "EXP_STAGE12_AVERAGING_MEMBERAUDIT_20261123",
+      "soft_voting_all_architectures_strategies"
+    ],
+    "Block Bagging": [
+      "EXP_STAGE12_BLOCKBAG_LOGREG_B5_M10_V2_20261123",
+      "temporal_block_bagging_logreg"
+    ],
+    "Stacking": [
+      "EXP_STAGE12_STACKING_20261123",
+      "chronological_oof_stacking"
+    ]
+  },
+  "source_prediction_sha256": {
+    "Logistic Regression": "cf29ce2dfeccdea9fc6bbb6177f6b01da70ad9d4f726182d2809c68566216c49",
+    "Voting": "d0fd525482f68eb83ef5ab36387259c1af5fbde168b7f98d3aba5c68373c03cf",
+    "Block Bagging": "fbea61e96b42f7106086be5de17a3562efca72c076e0be748ae4e4ee2ab09ad7",
+    "Stacking": "36f9d709855d8049efd597c709517b5e56f942210bf971cd00ed3a6b056caa68"
+  },
+  "snapshot_sha256": "a3c9ea7ff2d9fe9c103a06a5ff211e41ebccb1ce081fe46c8f55e6e70bc2ca91",
+  "keys_checked": [
+    "instrument",
+    "session_date",
+    "decision_time",
+    "scale",
+    "fold"
+  ],
+  "y_true_equality_checked": true,
+  "bootstrap": {
+    "unit": "session_date",
+    "iterations": 5000,
+    "seed": 42,
+    "ci": "percentile 95%"
+  },
+  "june_accessed": false,
+  "note": "OOF comparison restricted to March-April (folds 02-03) so stacking and all baselines share identical samples."
+}

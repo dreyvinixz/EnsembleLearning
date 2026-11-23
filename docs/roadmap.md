@@ -15,8 +15,8 @@ constraints.
 | Stage | Scope | State |
 |---|---|---|
 | #10 | Expanding walk-forward, classical baseline, shared metrics, immutable tracking and individual predictions | Implemented; exploratory Logistic Regression run on Linux; June untouched |
-| #11 | MLP/CNN/LSTM/GRU, independent per-scale and shared three-head MTL, causal sequences, early stopping, checkpoints | Trainer integrated; exact pairing and full purged-block refit added in corrective branch; targeted CI and fresh post-refit runs pending |
-| #12 | Audit existing runs, paired statistics, Voting, seed ensemble, temporal block bagging and OOF stacking | Prior runs audited exploratorily; restart comparisons after Stage 11 refit validation |
+| #11 | MLP/CNN/LSTM/GRU, independent per-scale and shared three-head MTL, causal sequences, early stopping, checkpoints | Integrated in PR #11; exact population/y_true pairing, full purged-block refit, CI green, and 16 post-refit GPU runs audited |
+| #12 | Audit existing runs, paired statistics, Voting, seed ensemble, temporal block bagging and OOF stacking | Implemented and executed on Linux development data; PR/CI review pending; all comparisons exploratory |
 | Later | B0 label-quality analysis, regime/label disagreement, calibration, paired statistics; assess adaptive DAME only if evidence supports it | Not implemented as a complete analysis |
 | Final evaluation | Freeze protocol after development and May validation; train permitted final models and evaluate June once | Reserved; must not be used for debugging, tuning or selection |
 
@@ -55,3 +55,9 @@ tests and an updated source manifest.
 No claim of DAME novelty, label truth, exact future-price prediction, or PnL is
 made. Trading metrics require a separate pre-specified execution and cost model.
 Do not invent missing candles, label-known timestamps or training results.
+
+A matriz pós-refit e o bootstrap pareado estão em `reports/stage12/refit-2026-11-23/`; a auditoria antiga sem refit permanece em `reports/stage12/preliminary-2026-11-23/` somente como histórico. Os 16 novos runs usam o mesmo snapshot e têm as mesmas 170.100 chaves e classes que o baseline. Resultados de Voting/Seed Ensemble, Block Bagging e Stacking estão em `reports/stage12/averaging-2026-11-23/`, `reports/stage12/block-bagging-2026-11-23/` e `reports/stage12/stacking-2026-11-23/`; os artefatos versionados contêm agregados e manifestos, sem previsões privadas completas.
+
+Os ensembles usam probabilidades pós-refit: pesos uniformes em Voting/Seed Ensemble; metamodelo cronológico treinado apenas em folds OOF anteriores para Stacking; Logistic Regression com blocos móveis de cinco sessões para Block Bagging. Maio é somente validação e junho não foi acessado. ICs pareados usam 5.000 bootstraps por sessão sem correção de multiplicidade; resultados são exploratórios. Ver `docs/protocol.md` e os relatórios por método.
+
+Figuras de MCC e acurácia na mesma população OOF março–abril e validação de maio estão em `figures/stage12-mcc-2026-11-23.png` e `figures/stage12-accuracy-2026-11-23.png`, com PDFs vetoriais e dados/manifesto em `reports/stage12/paired-metrics-2026-11-23/`.
