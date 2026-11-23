@@ -1,5 +1,46 @@
 # Fase 0 — Implementação reproduzível (PR inicial)
 
+## Etapa #10 — Walk-forward e rastreamento de experimentos (2026-11-23)
+
+O comando `ensemble-walk-forward` executa um modelo clássico independente em
+folds expansivos. `fold01`–`fold03` geram previsões OOF para fevereiro–abril;
+`fold04` treina até abril e avalia maio como validação externa. Junho é rejeitado
+na entrada e não é consultado. A liberação pós-sessão dos rótulos continua sendo
+a hipótese documentada em `disponibilidade-rotulos.md`, não um timestamp observado.
+
+Cada execução cria um diretório imutável `results/EXP_<id>/` com configuração,
+manifesto e hash SHA-256 da fonte, métricas por horizonte/fold/sessão/contrato,
+previsões Parquet com probabilidades e identificador de amostra, tempos de ajuste
+e inferência e checkpoints. As métricas incluem MCC, Accuracy, Balanced Accuracy,
+precision/recall/F1 por classe, Macro-F1, ROC-AUC, Average Precision, Brier,
+Log Loss, ECE em 10 bins e matriz de confusão. O MCC é a métrica principal
+provisória. Intervalos percentis de 95% por bootstrap de pregões são diagnósticos;
+comparações pareadas entre modelos e correção de múltiplas comparações ainda
+precisam ser implementadas antes de inferência confirmatória.
+
+Execução de referência no Linux `ginfolab-maquinario`:
+
+```bash
+ensemble-walk-forward \
+  --csv data/processed/win_2026_development_jan_may_v1.csv \
+  --model logreg --seed 42 --results results
+```
+
+Resultado exploratório salvo em `/home/ginfolab/EnsembleLearning/results/EXP_F776BE93EB`;
+174.189 previsões OOF/validação, máximo em 2026-05-29, 3 escalas, 4 folds,
+execução em 8,90 s. A fonte tem SHA-256
+`410ccbf212204b94d4705b83ec6813974e0bd2460a26deaa4aec84fed1826219`.
+Os resultados OOF de fevereiro–abril e validação de maio são separados nos CSVs.
+São baseline de desenvolvimento, não resultados de teste final nem comparação
+de métodos. Artefatos ficam ignorados pelo Git; o dado privado não foi versionado.
+
+Limitações remanescentes desta etapa: sem ajuste de hiperparâmetros/early stopping,
+calibração pós-treino, métricas por regime, risco seletivo, intervalos pareados,
+correção de multiplicidade ou renderização automática de figuras. A cobertura
+temporal foi controlada por folds; disponibilidade real de rótulos permanece
+simulada pós-sessão. `docs/roadmap.md` não existe neste checkout; o plano ativo
+está em `docs/protocol.md` e no `AI_HANDOFF.md`.
+
 ## O que já existe em código
 - Validador CSV explícito para rótulos **binários 0/1** (uma escolha de execução, **não** afirmação sobre o contrato real do B0).
 - Timestamp de decisão, disponibilidade mais recente dos atributos e intervalos informacionais completos por rótulo.
