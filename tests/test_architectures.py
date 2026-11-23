@@ -3,9 +3,9 @@ import pytest
 
 torch = pytest.importorskip("torch")
 from ensemble_learning.sequence_models import (
+    NEURAL_ARCHITECTURES,
     IndependentSequenceClassifier,
     MultiTaskSequenceClassifier,
-    NEURAL_ARCHITECTURES,
 )
 
 
