@@ -81,5 +81,52 @@ def walk_forward_main(argv: list[str] | None = None) -> int:
     return 0
 
 
+def neural_walk_forward_main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Tracked PyTorch B0 sequence experiments")
+    parser.add_argument("--csv", type=Path, required=True,
+                        help="Full-context B0 snapshot, Jan-May 2026; unlabeled candles are retained")
+    parser.add_argument("--architecture", choices=("all", "mlp", "cnn1d", "lstm", "gru"),
+                        default="all")
+    parser.add_argument("--strategy", choices=("all", "independent", "mtl"), default="all")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--device", default="auto", help="auto, cpu, or cuda")
+    parser.add_argument("--results", type=Path, default=Path("results"))
+    parser.add_argument("--experiment-id", help="Only valid for a single architecture/strategy pair")
+    parser.add_argument("--epochs", type=int, default=40)
+    parser.add_argument("--patience", type=int, default=6)
+    parser.add_argument("--batch-size", type=int, default=256)
+    parser.add_argument("--hidden-size", type=int, default=32)
+    parser.add_argument("--learning-rate", type=float, default=1e-3)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    args = parser.parse_args(argv)
+
+    from ensemble_learning.contracts import validate_sequence_frame
+    from ensemble_learning.neural_training import (
+        NEURAL_ARCHITECTURES,
+        STRATEGIES,
+        run_neural_experiment,
+    )
+
+    frame = validate_sequence_frame(pd.read_csv(args.csv))
+    architectures = NEURAL_ARCHITECTURES if args.architecture == "all" else (args.architecture,)
+    strategies = STRATEGIES if args.strategy == "all" else (args.strategy,)
+    if args.experiment_id and (len(architectures) != 1 or len(strategies) != 1):
+        parser.error("--experiment-id requires one architecture and one strategy")
+    outputs = []
+    for architecture in architectures:
+        for strategy in strategies:
+            result = run_neural_experiment(
+                frame, architecture=architecture, strategy=strategy,
+                data_path=args.csv, results_root=args.results, seed=args.seed,
+                experiment_id=args.experiment_id, device_name=args.device,
+                epochs=args.epochs, patience=args.patience, batch_size=args.batch_size,
+                hidden_size=args.hidden_size, learning_rate=args.learning_rate,
+                weight_decay=args.weight_decay,
+            )
+            outputs.append(str(result))
+    print("\n".join(outputs))
+    return 0
+
+
 if __name__ == "__main__":
     raise SystemExit(main())

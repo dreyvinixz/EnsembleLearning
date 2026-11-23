@@ -22,7 +22,9 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def make_snapshot(market: pd.DataFrame, labels: pd.DataFrame) -> pd.DataFrame:
+def make_snapshot(
+    market: pd.DataFrame, labels: pd.DataFrame, *, include_context_bars: bool = False,
+) -> pd.DataFrame:
     keys = ["instrument", "asset_id", "session_date", "candle_start_local"]
     frame = market.merge(labels, on=keys, how="inner", validate="one_to_one")
     frame["candle_start_local"] = pd.to_datetime(frame["candle_start_local"])
@@ -52,9 +54,15 @@ def make_snapshot(market: pd.DataFrame, labels: pd.DataFrame) -> pd.DataFrame:
     for window in (5, 15, 30, 60):
         features[f"x_return_volatility_{window}bars"] = one_bar_return.groupby(
             [frame[k] for k in group_keys], sort=False, observed=True
-        ).transform(lambda values: values.rolling(window, min_periods=max(3, window // 2)).std())
+        ).transform(
+            lambda values, rolling_window=window: values.rolling(
+                rolling_window, min_periods=max(3, rolling_window // 2)
+            ).std()
+        )
         rolling_mean = grouped["close"].transform(
-            lambda values: values.rolling(window, min_periods=max(3, window // 2)).mean()
+            lambda values, rolling_window=window: values.rolling(
+                rolling_window, min_periods=max(3, rolling_window // 2)
+            ).mean()
         )
         features[f"x_close_vs_sma_{window}bars"] = frame["close"].div(rolling_mean).sub(1)
     log_volume = features["x_log_volume"]
@@ -71,7 +79,7 @@ def make_snapshot(market: pd.DataFrame, labels: pd.DataFrame) -> pd.DataFrame:
     # At decision time = candle start + 1 minute, count source candles in
     # [decision-60m, decision), grouped by contract and session.
     eligible = np.zeros(len(frame), dtype=bool)
-    for _, indexes in frame.groupby(group_keys, sort=False, observed=True).groups.items():
+    for indexes in frame.groupby(group_keys, sort=False, observed=True).groups.values():
         positions = np.asarray(list(indexes), dtype=int)
         starts = frame.loc[positions, "candle_start_local"].to_numpy(dtype="datetime64[ns]").astype("int64")
         left = np.searchsorted(starts, starts - 59 * 60 * 1_000_000_000, side="left")
@@ -90,8 +98,9 @@ def make_snapshot(market: pd.DataFrame, labels: pd.DataFrame) -> pd.DataFrame:
     frame["label_info_end"] = conservative_end
     frame["label_known_at"] = simulated_known
 
-    frame = frame.loc[frame["_coverage_80"]].copy()
-    frame = frame.dropna(subset=["y_b0_5m", "y_b0_10m", "y_b0_15m"])
+    if not include_context_bars:
+        frame = frame.loc[frame["_coverage_80"]].copy()
+        frame = frame.dropna(subset=["y_b0_5m", "y_b0_10m", "y_b0_15m"])
     frame = frame.rename(
         columns={"y_b0_5m": "y_5m", "y_b0_10m": "y_10m", "y_b0_15m": "y_15m"}
     )

@@ -1,5 +1,7 @@
 """Build provisional causal monthly rosters from previous-month evidence only."""
 from __future__ import annotations
+
+import argparse
 import calendar
 import csv
 import hashlib
@@ -9,10 +11,16 @@ from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT/'data/b3_win/evidencia-selecao-mensal-2026.csv'
-RANKS = ROOT/'data/b3_win/selecao-win-25-v3-criterios.csv'
-SCHEDULE = ROOT/'data/b3_win/selecao-win-25-v3-por-pregao.csv'
-MANIFEST = ROOT/'data/b3_win/selecao-win-25-v3-manifest.json'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--source', type=Path, default=ROOT/'data/b3_win/evidencia-selecao-mensal-2026.csv')
+parser.add_argument('--ranks', type=Path, default=ROOT/'data/b3_win/selecao-win-25-v3-criterios.csv')
+parser.add_argument('--schedule', type=Path, default=ROOT/'data/b3_win/selecao-win-25-v3-por-pregao.csv')
+parser.add_argument('--manifest', type=Path, default=ROOT/'data/b3_win/selecao-win-25-v3-manifest.json')
+args = parser.parse_args()
+SOURCE, RANKS, SCHEDULE, MANIFEST = (
+    value if value.is_absolute() else ROOT/value
+    for value in (args.source, args.ranks, args.schedule, args.manifest)
+)
 CLOSED = {'2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-04-03',
           '2026-04-21','2026-05-01','2026-06-04'}
 JANUARY = [('WING26','2026-02-18'),('WINJ26','2026-04-15')]
@@ -24,6 +32,8 @@ def sessions(month: int) -> list[date]:
 
 if any(p.exists() for p in (RANKS,SCHEDULE,MANIFEST)):
  raise FileExistsError('Output already exists; use a new version instead of overwriting')
+if not SOURCE.is_file(): raise FileNotFoundError(SOURCE)
+for directory in {RANKS.parent, SCHEDULE.parent, MANIFEST.parent}: directory.mkdir(parents=True,exist_ok=True)
 with SOURCE.open(encoding='utf-8',newline='') as f: source=list(csv.DictReader(f))
 candidates=defaultdict(list)
 for r in source:

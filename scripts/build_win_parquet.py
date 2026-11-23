@@ -1,16 +1,26 @@
 """Build the local WIN research base from read-only BovDB SQLite inputs."""
 from __future__ import annotations
-import argparse, csv, hashlib, json, os, sqlite3, sys
+
+import argparse
+import csv
+import hashlib
+import json
+import os
+import sqlite3
+import sys
+from collections import defaultdict
 from datetime import date, datetime, time
 from pathlib import Path
 from zoneinfo import ZoneInfo
-from collections import defaultdict
+
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from ensemble_learning.coverage import recent_coverage
+
 SRC_M=ROOT/'data/db/bovdb-v3.1-internal.2.sqlite'
 SRC_L=ROOT/'data/db/bovdb-labels-B4-v1.sqlite'
 SEL=ROOT/'data/b3_win/selecao-win-25-v3-por-pregao.csv'
@@ -31,25 +41,34 @@ def save_parquet(df,path):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--market-db',type=Path,default=SRC_M,help='Market SQLite opened read-only and immutable')
+    parser.add_argument('--labels-db',type=Path,default=SRC_L,help='B0 SQLite opened read-only and immutable')
+    parser.add_argument('--selection',type=Path,default=SEL,help='Frozen contract-by-session schedule')
     parser.add_argument('--output',type=Path,default=OUT,help='New output directory; existing directories are never overwritten')
+    parser.add_argument('--end-date',default=END,help='Inclusive last session to extract (for development use 2026-05-31)')
     args=parser.parse_args()
     output=args.output if args.output.is_absolute() else ROOT/args.output
+    market_db=args.market_db if args.market_db.is_absolute() else ROOT/args.market_db
+    labels_db=args.labels_db if args.labels_db.is_absolute() else ROOT/args.labels_db
+    selection=args.selection if args.selection.is_absolute() else ROOT/args.selection
+    end_date=args.end_date
+    if not START <= end_date <= END: parser.error(f'--end-date must be between {START} and {END}')
     tmp=output.with_name('.'+output.name+'.building')
     if output.exists() or tmp.exists(): raise FileExistsError('Refusing to overwrite '+str(output if output.exists() else tmp))
-    for p in (SRC_M,SRC_L,SEL):
+    for p in (market_db,labels_db,selection):
         if not p.is_file(): raise FileNotFoundError(p)
-    sched=[r for r in csv.DictReader(SEL.open(encoding='utf-8',newline='')) if r['contrato'] and START<=r['data']<=END]
+    sched=[r for r in csv.DictReader(selection.open(encoding='utf-8',newline='')) if r['contrato'] and START<=r['data']<=end_date]
     sessions=pd.DataFrame(sched).drop_duplicates(['data','contrato'])
     symbols=sorted(sessions.contrato.unique().tolist())
     marks=','.join('?' for _ in symbols)
-    c=ro(SRC_M)
+    c=ro(market_db)
     ticker=pd.read_sql_query(f'SELECT ticker,id_ticker FROM ticker WHERE ticker IN ({marks})',c,params=symbols)
     if set(ticker.ticker)!=set(symbols) or ticker.ticker.duplicated().any(): raise ValueError('Ticker mapping mismatch')
     market=pd.read_sql_query(f"""SELECT t.ticker instrument,p.id_ticker asset_id,p.date session_date,p.time source_time,
         p.open,p.high,p.low,p.close,p.average,p.volume,p.business,p.amount_stock
         FROM price1 p JOIN ticker t ON t.id_ticker=p.id_ticker
         WHERE t.ticker IN ({marks}) AND p.date BETWEEN ? AND ? AND p.time>='09:00:00' AND p.time<'18:00:00'
-        ORDER BY p.date,t.ticker,p.time""",c,params=[*symbols,START,END])
+        ORDER BY p.date,t.ticker,p.time""",c,params=[*symbols,START,end_date])
     c.close()
     market.session_date=market.session_date.astype(str)
     market=market.merge(sessions[['data','contrato']],left_on=['session_date','instrument'],right_on=['data','contrato'],how='inner',validate='many_to_one')
@@ -61,12 +80,12 @@ def main():
     if market.duplicated(key).any() or market.empty: raise ValueError('Duplicate or empty selected market data')
     labels_all=market[key+['instrument']].copy()
     labels_all['label_time']=labels_all.candle_start_local.dt.strftime('%H:%M:%S')
-    lc=ro(SRC_L)
+    lc=ro(labels_db)
     for h in (5,10,15):
         tab=f'trend_{h}m'
         df=pd.read_sql_query(f"""SELECT id_ticker asset_id,date session_date,time label_time,trend_label y_b0_{h}m
             FROM {tab} WHERE ticker IN ({marks}) AND date BETWEEN ? AND ? AND time>='09:00:00' AND time<'18:00:00'""",
-            lc,params=[*symbols,START,END])
+            lc,params=[*symbols,START,end_date])
         df.session_date=df.session_date.astype(str); df.label_time=df.label_time.astype(str)
         df=df.merge(ticker,left_on='asset_id',right_on='id_ticker',how='left',validate='many_to_one').drop(columns='id_ticker')
         df=df[df.ticker.isin(symbols)].drop(columns='ticker')
@@ -120,13 +139,13 @@ def main():
     save_parquet(market,tmp/'market_candles.parquet'); save_parquet(targets,tmp/'b0_targets_retrospective.parquet')
     coverage.to_csv(tmp/'session_coverage.csv',index=False,encoding='utf-8')
     def sha(p):return hash_file(p)
-    manifest={'dataset_id':'win_2026_v1','status':'research_base_with_session_bound_release_policy_historical_release_unobserved',
-      'period_inclusive':{'start':START,'end':END},'timezone':'America/Sao_Paulo',
+    manifest={'dataset_id':output.name,'status':'research_base_with_session_bound_release_policy_historical_release_unobserved',
+      'period_inclusive':{'start':START,'end':end_date},'timezone':'America/Sao_Paulo',
       'session':{'start':'09:00','end_exclusive':'18:00','included_candle_starts':'09:00 through 17:59'},
-      'universe':symbols,'selection_rule':{'source_file':str(SEL.relative_to(ROOT)),'sha256':sha(SEL),'coverage_threshold_monthly':0.25,
+      'universe':symbols,'selection_rule':{'source_file':str(selection),'sha256':sha(selection),'coverage_threshold_monthly':0.25,
         'coverage_window':'60 min with at least 48 closed one-minute candles','max_gap_minutes':None,'January':'manual roster'},
-      'sources':[{'file':str(SRC_M.relative_to(ROOT)),'sha256':sha(SRC_M),'table':'price1','read_mode':'read-only immutable'},
-        {'file':str(SRC_L.relative_to(ROOT)),'sha256':sha(SRC_L),'tables':['trend_5m','trend_10m','trend_15m'],'read_mode':'read-only immutable'}],
+      'sources':[{'file':str(market_db),'sha256':sha(market_db),'table':'price1','read_mode':'read-only immutable'},
+        {'file':str(labels_db),'sha256':sha(labels_db),'tables':['trend_5m','trend_10m','trend_15m'],'read_mode':'read-only immutable'}],
       'market_candles':{'rows':len(market),'schema':list(market.columns),'description':'Observed source candles only; no synthetic fill or indicators.'},
       'b0_targets_retrospective':{'rows':len(targets),'schema':list(targets.columns),
         'non_null':{f'y_b0_{h}m':int(targets[f'y_b0_{h}m'].notna().sum()) for h in (5,10,15)},
@@ -140,7 +159,7 @@ def main():
     for p in sorted(tmp.iterdir()):
         if p.is_file():manifest['output_files'][p.name]={'bytes':p.stat().st_size,'sha256':sha(p)}
     (tmp/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    readme='''# Base WIN 2026 em Parquet\n\nCandles observados do BovDB para a programação v3 (corte mensal de 25%), no período inclusivo 2026-01-02 a 2026-06-30.\n\n- `market_candles.parquet`: OHLC, média, volume e contadores originais; um registro por candle observado entre 09:00 e 17:59. Sem imputação ou indicadores técnicos.\n- `b0_targets_retrospective.parquet`: alvos B0 de 5/10/15 minutos alinhados por ativo/data/início do minuto; nulos preservados. Alvos são retrospectivos, não entradas. A auditoria estabelece um limite informacional conservador de sessão inteira; B4 não registra `label_known_at` nem tempos reais de ingestão/conclusão. Para walk-forward, declarar a hipótese de liberação pós-sessão e purgar sessões completas.\n- `session_coverage.csv`: cobertura de cada contrato selecionado em cada pregão, inclusive pregões sem candles; janela causal de 60 minutos com pelo menos 48 candles concluídos. Sem limite máximo de lacuna definido.\n- `manifest.json`: hashes das fontes e saídas, esquemas, critérios e limitações.\n\nTimestamps são hora local B3 sem fuso embutido (America/Sao_Paulo no manifesto). `candle_start_local` indica o início do minuto; OHLCV só pode ser usado após o minuto fechar e chegar ao sistema. Construa atributos de previsão somente com candles já encerrados antes da decisão.\n'''
+    readme=f'''# Base WIN 2026 em Parquet\n\nCandles observados do BovDB para a programação v3 (corte mensal de 25%), no período inclusivo {START} a {end_date}.\n\n- `market_candles.parquet`: OHLC, média, volume e contadores originais; um registro por candle observado entre 09:00 e 17:59. Sem imputação ou indicadores técnicos.\n- `b0_targets_retrospective.parquet`: alvos B0 de 5/10/15 minutos alinhados por ativo/data/início do minuto; nulos preservados. Alvos são retrospectivos, não entradas. A auditoria estabelece um limite informacional conservador de sessão inteira; B4 não registra `label_known_at` nem tempos reais de ingestão/conclusão. Para walk-forward, declarar a hipótese de liberação pós-sessão e purgar sessões completas.\n- `session_coverage.csv`: cobertura de cada contrato selecionado em cada pregão, inclusive pregões sem candles; janela causal de 60 minutos com pelo menos 48 candles concluídos. Sem limite máximo de lacuna definido.\n- `manifest.json`: hashes das fontes e saídas, esquemas, critérios e limitações.\n\nTimestamps são hora local B3 sem fuso embutido (America/Sao_Paulo no manifesto). `candle_start_local` indica o início do minuto; OHLCV só pode ser usado após o minuto fechar e chegar ao sistema. Construa atributos de previsão somente com candles já encerrados antes da decisão.\n'''
     (tmp/'README.md').write_text(readme,encoding='utf-8')
     if output.exists():raise FileExistsError('Output appeared while building')
     output.parent.mkdir(parents=True,exist_ok=True); os.replace(tmp,output)
