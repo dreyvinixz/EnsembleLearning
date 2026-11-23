@@ -55,3 +55,5 @@ tests and an updated source manifest.
 No claim of DAME novelty, label truth, exact future-price prediction, or PnL is
 made. Trading metrics require a separate pre-specified execution and cost model.
 Do not invent missing candles, label-known timestamps or training results.
+
+A matriz pós-refit e o bootstrap pareado estão em `reports/stage12/refit-2026-11-23/`; a auditoria antiga sem refit permanece em `reports/stage12/preliminary-2026-11-23/` somente como histórico. Os 16 novos runs usam o mesmo snapshot e têm as mesmas 170.100 chaves e classes que o baseline. A Etapa #12 deve usar previsões OOF (fold01–03) para desenvolver Voting, Seed Ensemble e Stacking; maio é apenas validação descritiva e junho continua reservado.

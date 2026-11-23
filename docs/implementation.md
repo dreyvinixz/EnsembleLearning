@@ -202,3 +202,7 @@ sequências ou treinador neural. A execução de testes usa dados sintéticos.
 5. Seed ensemble, block bagging, Stacking OOF, análise de discordância e PCGrad.
 6. Investigar DAME somente após evidência e revisão de originalidade.
 7. Calibração, inferência pareada por pregão, ablações e robustez externa.
+
+## Resultados Stage 12 após refit — 2026-11-23
+
+A matriz nova de 16 execuções e a auditoria pareada estão documentadas em `reports/stage12/refit-2026-11-23/`. Todas as execuções produziram 170.100 previsões, com igualdade completa de população e classes em relação ao baseline. A avaliação reporta MCC médio sobre duas seeds; não há vencedor global. OOF contém 44.702 observações por escala em 59 sessões, e maio 11.998 por escala em 17 sessões. Foram usados 5.000 bootstraps pareados de sessão, sem correção de multiplicidade; portanto, conclusões continuam exploratórias. Junho não foi acessado.
