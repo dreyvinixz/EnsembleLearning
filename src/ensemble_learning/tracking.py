@@ -153,7 +153,7 @@ def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
     config={"model":model_name,"seed":seed,"folds":"expanding_jan_apr_oof_plus_may_validation",
         "features":cols,"primary_metric":"MCC (provisional)","threshold":.5,
         "classical_hyperparameters":model_params,"early_stopping":False}
-    (work_dir/"config.yaml").write_text(json.dumps(config,indent=2),encoding="utf-8")
+    (work_dir/"config.yaml").write_text(json.dumps(config,indent=2,default=str),encoding="utf-8")
     try: commit=subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()
     except Exception: commit=None
     versions={}
