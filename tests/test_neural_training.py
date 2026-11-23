@@ -8,7 +8,11 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from ensemble_learning.contracts import validate_sequence_frame
-from ensemble_learning.neural_training import _WindowDataset, run_neural_experiment
+from ensemble_learning.neural_training import (
+    _training_validation_split,
+    _WindowDataset,
+    run_neural_experiment,
+)
 from ensemble_learning.pairing import paired_metrics
 from ensemble_learning.sequences import CausalWindows
 from ensemble_learning.tracking import run_walk_forward
@@ -60,6 +64,18 @@ def test_window_dataset_materializes_causal_slots_and_missing_mask():
     ], dtype=np.float32))
     assert target.item() == 1
     assert dataset.feature_tensor_bytes == 2 * 3 * 3 * np.dtype(np.float32).itemsize
+
+
+def test_purge_keeps_context_but_removes_labels_at_validation_boundary():
+    frame = validate_sequence_frame(_neural_development_frame())
+    frame = frame.loc[frame.session_date.str.startswith("2026-01")].copy()
+    boundary = frame.loc[frame.session_date.eq("2026-01-06"), "decision_time"].min()
+    fit_mask = frame.session_date.eq("2026-01-05")
+    for horizon in (5, 10, 15):
+        frame.loc[fit_mask, f"label_known_at_{horizon}m"] = boundary
+    fit, validation = _training_validation_split(frame, validation_fraction=.5)
+    assert len(fit) == 70 and len(validation) == 70
+    assert fit[["y_5m", "y_10m", "y_15m"]].isna().all().all()
 
 
 @pytest.mark.parametrize("architecture", ["mlp", "cnn1d", "lstm", "gru"])

@@ -518,8 +518,8 @@ def run_neural_experiment(
                     precision=precision, num_workers=num_workers,
                     compile_model=compile_model, allow_tf32=allow_tf32,
                 )
-                fit_manifest["fit_start"] = fit_context.session_date.min()
-                fit_manifest["fit_end"] = fit_context.session_date.max()
+                fit_manifest["fit_start"] = fit_windows.anchors.session_date.min()
+                fit_manifest["fit_end"] = fit_windows.anchors.session_date.max()
                 histories.extend(fold_history)
                 fits.append({
                     **fit_manifest, "trained_horizons": run_targets,
