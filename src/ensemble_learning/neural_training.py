@@ -31,7 +31,7 @@ from ensemble_learning.sequence_models import (
     IndependentSequenceClassifier,
     MultiTaskSequenceClassifier,
 )
-from ensemble_learning.sequences import CausalWindows, build_causal_windows
+from ensemble_learning.sequences import CausalWindows, build_causal_windows, summarize_eligibility
 from ensemble_learning.tracking import (
     _session_bootstrap_ci,
     classification_metrics,
@@ -76,7 +76,8 @@ def _training_validation_split(
         training_context.session_date.astype(str).isin(validation_sessions)
     ].copy()
     first_validation_decision = validation.decision_time.min()
-    fit = fit.loc[latest_label_confirmation(fit) < first_validation_decision]
+    unavailable = latest_label_confirmation(fit).ge(first_validation_decision)
+    fit.loc[unavailable, [f"y_{h}m" for h in HORIZONS]] = np.nan
     if fit.session_date.nunique() == 0 or validation.session_date.nunique() == 0:
         raise ValueError("Purging leaves an empty internal train or validation partition")
     return fit, validation
@@ -470,7 +471,7 @@ def run_neural_experiment(
             torch.cuda.reset_peak_memory_stats(device)
         folds = walk_forward_folds(frame)
         target_list = list(HORIZONS)
-        predictions, histories, fits = [], [], []
+        predictions, histories, fits, coverage = [], [], [], []
 
         for fold in folds:
             fit_context, inner_validation_context = _training_validation_split(
@@ -485,18 +486,24 @@ def run_neural_experiment(
                     output_targets=output_targets, normalizer=normalizer,
                     window_minutes=window_minutes, min_observed=min_observed,
                 )
-                del fit_windows
                 validation_dataset, validation_windows = _build_dataset(
                     inner_validation_context, columns=columns, anchor_targets=target_columns,
                     output_targets=output_targets, normalizer=normalizer,
                     window_minutes=window_minutes, min_observed=min_observed,
                 )
-                del validation_windows
                 prediction_dataset, prediction_windows = _build_dataset(
                     fold["oof"], columns=columns, anchor_targets=target_columns,
                     output_targets=output_targets, normalizer=normalizer,
                     window_minutes=window_minutes, min_observed=min_observed,
                 )
+                if run_targets == target_runs[0]:
+                    for partition, context, windows in (
+                        ("fit", fit_context, fit_windows),
+                        ("inner_validation", inner_validation_context, validation_windows),
+                        ("oof", fold["oof"], prediction_windows),
+                    ):
+                        coverage.append({"fold": fold["fold"], "partition": partition,
+                            **summarize_eligibility(context, windows, target_columns)})
                 if device.type == "cuda":
                     torch.cuda.empty_cache()
                 fold_predictions, fold_history, fit_manifest = _train_one_fold(
@@ -548,6 +555,7 @@ def run_neural_experiment(
                 )
 
         prediction_frame = pd.concat(predictions, ignore_index=True)
+        pd.DataFrame(coverage).to_csv(building / "coverage.csv", index=False)
         by_fold, by_session, by_instrument = [], [], []
         for (fold_name, scale), group in prediction_frame.groupby(["fold", "scale"], sort=True):
             by_fold.append({"fold": fold_name, "scale": scale,

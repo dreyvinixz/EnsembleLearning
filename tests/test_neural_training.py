@@ -9,7 +9,9 @@ torch = pytest.importorskip("torch")
 
 from ensemble_learning.contracts import validate_sequence_frame
 from ensemble_learning.neural_training import _WindowDataset, run_neural_experiment
+from ensemble_learning.pairing import paired_metrics
 from ensemble_learning.sequences import CausalWindows
+from ensemble_learning.tracking import run_walk_forward
 
 TZ = ZoneInfo("America/Sao_Paulo")
 
@@ -106,6 +108,8 @@ def test_neural_walk_forward_records_b0_predictions_and_artifacts(
 
 def test_same_seed_reproduces_and_pairs_independent_with_mtl(tmp_path):
     raw = _neural_development_frame()
+    raw.loc[(raw.decision_time.dt.hour == 9) & (raw.decision_time.dt.minute < 30),
+            ["y_5m", "y_10m", "y_15m"]] = np.nan
     data_path = tmp_path / "development.csv"
     raw.to_csv(data_path, index=False)
     frame = validate_sequence_frame(pd.read_csv(data_path))
@@ -119,6 +123,11 @@ def test_same_seed_reproduces_and_pairs_independent_with_mtl(tmp_path):
     first = pd.read_parquet(outputs[("independent", 0)] / "predictions.parquet")
     joint = pd.read_parquet(outputs[("mtl", 1)] / "predictions.parquet")
     repeat = pd.read_parquet(outputs[("independent", 2)] / "predictions.parquet")
+    classical = run_walk_forward(frame, data_path=data_path, results_root=tmp_path / "results")
+    baseline = pd.read_parquet(classical / "predictions.parquet")
+    paired, comparison = paired_metrics(baseline, first)
+    assert len(paired) == len(baseline) == len(first)
+    assert (comparison.available_left == comparison.available_right).all()
     keys = ["sample_id", "fold", "scale", "seed"]
     assert first.sort_values(keys)[keys].reset_index(drop=True).equals(
         joint.sort_values(keys)[keys].reset_index(drop=True)

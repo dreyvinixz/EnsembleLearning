@@ -62,6 +62,20 @@ GPU/memória, durações e configuração. A partição interna de early stoppin
 cronológica e purgada pela disponibilidade declarada. `fit_start`/`fit_end`
 descrevem o subconjunto realmente usado para ajustar pesos.
 
+O clássico e o neural usam o mesmo snapshot completo e exigem os três alvos,
+60 minutos de relógio e 48 candles para cada âncora. `coverage.csv` registra
+candles de contexto sem os três alvos, decisões antes das 10h, cobertura
+insuficiente e âncoras aceitas por fold e partição. Após a purga, candles sem
+rótulo continuam disponíveis como contexto, mas não são exemplos de ajuste.
+`ensemble-pair <predictions_a.parquet> <predictions_b.parquet> <novo-diretorio>`
+compara a interseção de instrumento, sessão, instante, escala e fold; rejeita
+chaves duplicadas e diferenças em `y_true` e registra métricas e contagens.
+Escolha uma seed por arquivo: múltiplas seeds com a mesma chave são rejeitadas.
+O clássico ajusta usando todo o bloco de treino disponível; o neural reserva
+sessões para early stopping. O reajuste neural sobre todo o bloco após escolher
+épocas ainda não está implementado, portanto essa diferença deve ser considerada
+ao interpretar comparações.
+
 ### Limites científicos e trabalho restante
 
 - A liberação pós-sessão de B0 é uma hipótese conservadora simulada; não é hora

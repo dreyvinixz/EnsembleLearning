@@ -19,6 +19,20 @@ class CausalWindows:
     observed_candles: np.ndarray
 
 
+def summarize_eligibility(frame: pd.DataFrame, windows: CausalWindows,
+                          target_columns: list[str]) -> dict[str, int]:
+    """Count mutually exclusive reasons for excluding context rows."""
+    labeled = frame[target_columns].notna().all(axis=1)
+    before = pd.to_datetime(frame.decision_time, utc=True).dt.tz_convert(
+        "America/Sao_Paulo"
+    ).dt.time < time(10, 0)
+    candidates = labeled & ~before
+    return {"context_rows": len(frame), "missing_target": int((~labeled).sum()),
+            "before_10": int((labeled & before).sum()),
+            "insufficient_coverage": int(candidates.sum()) - len(windows.anchors),
+            "accepted": len(windows.anchors)}
+
+
 def build_causal_windows(
     frame: pd.DataFrame,
     *,

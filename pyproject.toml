@@ -24,6 +24,7 @@ deep = ["torch>=2.3"]
 ensemble-b0 = "ensemble_learning.cli:main"
 ensemble-walk-forward = "ensemble_learning.cli:walk_forward_main"
 ensemble-neural-walk-forward = "ensemble_learning.cli:neural_walk_forward_main"
+ensemble-pair = "ensemble_learning.pairing:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

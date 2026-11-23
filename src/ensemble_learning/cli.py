@@ -74,7 +74,8 @@ def walk_forward_main(argv: list[str] | None = None) -> int:
     parser.add_argument("--results", type=Path, default=Path("results"))
     parser.add_argument("--experiment-id")
     args = parser.parse_args(argv)
-    frame = validate_frame(pd.read_csv(args.csv))
+    from ensemble_learning.contracts import validate_sequence_frame
+    frame = validate_sequence_frame(pd.read_csv(args.csv))
     result = run_walk_forward(frame, model_name=args.model, seed=args.seed,
         data_path=args.csv, results_root=args.results, experiment_id=args.experiment_id)
     print(f"Experiment artifacts: {result}")
