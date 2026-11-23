@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+import numpy as np
 import pandas as pd
 import pytest
 
 torch = pytest.importorskip("torch")
 
 from ensemble_learning.contracts import validate_sequence_frame
-from ensemble_learning.neural_training import run_neural_experiment
+from ensemble_learning.neural_training import _WindowDataset, run_neural_experiment
+from ensemble_learning.sequences import CausalWindows
 
 TZ = ZoneInfo("America/Sao_Paulo")
 
@@ -39,6 +41,23 @@ def _neural_development_frame():
                     ).replace(tzinfo=TZ)
                 rows.append(row)
     return pd.DataFrame(rows)
+
+
+def test_window_dataset_materializes_causal_slots_and_missing_mask():
+    windows = CausalWindows(
+        row_indices=np.array([[0, -1, 2], [1, 2, 3]], dtype=np.int64),
+        anchors=pd.DataFrame({"y_5m": [1, 0]}),
+        observed_candles=np.array([2, 3]),
+    )
+    values = np.array([[1.0, 10.0], [2.0, 20.0], [3.0, 30.0], [4.0, 40.0]],
+                      dtype=np.float32)
+    dataset = _WindowDataset(windows, values, ["y_5m"])
+    features, target = dataset[0]
+    np.testing.assert_array_equal(features.numpy(), np.array([
+        [1.0, 10.0, 1.0], [0.0, 0.0, 0.0], [3.0, 30.0, 1.0],
+    ], dtype=np.float32))
+    assert target.item() == 1
+    assert dataset.feature_tensor_bytes == 2 * 3 * 3 * np.dtype(np.float32).itemsize
 
 
 @pytest.mark.parametrize("architecture", ["mlp", "cnn1d", "lstm", "gru"])
@@ -76,7 +95,7 @@ def test_neural_walk_forward_records_b0_predictions_and_artifacts(
     assert manifest["test_june_accessed"] is False
     assert manifest["target_columns_used_as_features"] is False
     assert all(
-        fit["train_end"] < fit["inner_validation_start"]
+        fit["fit_end"] < fit["inner_validation_start"]
         <= fit["inner_validation_end"] < fit["oof_start"]
         for fit in training_summary["fold_fits"]
     )

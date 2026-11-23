@@ -89,12 +89,20 @@ def neural_walk_forward_main(argv: list[str] | None = None) -> int:
                         default="all")
     parser.add_argument("--strategy", choices=("all", "independent", "mtl"), default="all")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--device", default="auto", help="auto, cpu, or cuda")
+    parser.add_argument("--device", default="cuda", help="cuda by default; also accepts cpu or auto")
     parser.add_argument("--results", type=Path, default=Path("results"))
     parser.add_argument("--experiment-id", help="Only valid for a single architecture/strategy pair")
     parser.add_argument("--epochs", type=int, default=40)
     parser.add_argument("--patience", type=int, default=6)
     parser.add_argument("--batch-size", type=int, default=256)
+    parser.add_argument("--precision", choices=("fp32", "bf16", "fp16"), default="fp32",
+                        help="CUDA mixed precision; fp32 preserves the reference path")
+    parser.add_argument("--num-workers", type=int, default=0,
+                        help="DataLoader processes; benchmark 0/2/4 on the target host")
+    parser.add_argument("--compile", action="store_true",
+                        help="Enable torch.compile; include compile startup cost in timing")
+    parser.add_argument("--allow-tf32", action="store_true",
+                        help="Enable faster CUDA TF32 math; numerical results may differ")
     parser.add_argument("--hidden-size", type=int, default=32)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
@@ -121,7 +129,9 @@ def neural_walk_forward_main(argv: list[str] | None = None) -> int:
                 experiment_id=args.experiment_id, device_name=args.device,
                 epochs=args.epochs, patience=args.patience, batch_size=args.batch_size,
                 hidden_size=args.hidden_size, learning_rate=args.learning_rate,
-                weight_decay=args.weight_decay,
+                weight_decay=args.weight_decay, precision=args.precision,
+                num_workers=args.num_workers, compile_model=args.compile,
+                allow_tf32=args.allow_tf32,
             )
             outputs.append(str(result))
     print("\n".join(outputs))

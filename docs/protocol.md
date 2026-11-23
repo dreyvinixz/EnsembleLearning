@@ -1,5 +1,36 @@
 # Protocolo experimental inicial
 
+## Correspondência entre objetivo e implementação atual
+
+O alvo implementado é a classe retrospectiva B0 observada em cada instante de
+decisão, separadamente em 5/10/15 minutos. A tarefa não é classificar o retorno
+realizado exatamente 5/10/15 minutos depois. As três colunas B0 são targets e
+referências para avaliação posterior; `feature_columns()` aceita apenas `x_`,
+portanto rótulos, `trend_mean` e metadados temporais não entram na inferência.
+Independent treina um classificador por horizonte; MTL usa representação
+compartilhada e três saídas. Predições contêm probabilidades por amostra.
+
+O código cobre MLP, CNN 1D, LSTM e GRU e o desenho Jan–Abr de desenvolvimento,
+maio de validação e junho reservado. Janeiro–abril são implementados como quatro
+folds expansivos: fevereiro, março e abril são OOF; maio é validação externa.
+O treinamento neural usa janelas causais de 60 minutos, mínimo 48 candles,
+slots ausentes com máscara, sem cruzar sessões, e decisão inicial às 10:00.
+Junho é rejeitado pelo treinador atual; ainda falta um executor controlado de
+holdout final.
+
+Não estão cobertos pela implementação atual: treino final em junho, seleção
+congelada após maio, Voting/Seed Ensemble/Block Bagging/Stacking, boosting no
+walk-forward completo, calibração pós-treino, regime, predição seletiva,
+comparações estatísticas pareadas ou DAME. Brier/Log Loss/ECE são registrados,
+mas calibração ainda é diagnóstica. Os números de folds descrevem partições,
+não resultados; cada arquitetura/estratégia usa uma seed por padrão.
+
+O código usa datas explícitas de disponibilidade de rótulos para purge, mas o
+snapshot atual simula a liberação B0 após a sessão. Portanto, as separações
+cronológicas são condicionais a essa hipótese conservadora, que não equivale a
+timestamps históricos observados. Features e timestamp de fechamento precisam
+continuar vinculados ao manifesto auditado.
+
 ## Pergunta e hipóteses
 
 Como qualidade, consistência e discordância dos rótulos multiescala influenciam generalização e comparação entre estratégias? H1: a diferença de desempenho entre métodos varia com a estratégia de rotulagem (interação, sem direção presumida). H2: MTL pode apresentar transferência positiva ou negativa por horizonte. H3: combinação adaptativa pode melhorar uma métrica pré-especificada em relação a controles simples. São hipóteses, não resultados; definir estimandos, métrica principal e limiares antes do teste.
