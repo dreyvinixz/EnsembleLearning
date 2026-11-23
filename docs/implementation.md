@@ -31,7 +31,11 @@ foi usada em testes sintéticos apenas para testar o software.
 ## Primeira execução (validação, sem tocar no teste)
     python -m pip install -e ".[dev]"
     pytest -q
-    ensemble-b0 --csv data/approved_snapshot.csv --validation-sessions 20 --test-sessions 20 --output results/baseline_v1.json
+    ensemble-b0 --csv data/approved_snapshot.csv --output results/baseline_v1.json
+
+O holdout usa datas fixas: janeiro–abril para treino, maio para validação e junho para
+teste final reservado. Os rótulos pós-sessão são uma hipótese de simulação, não horários
+históricos observados. O CSV usa timestamps ISO 8601 com offset `-03:00`.
 
 O comando só funciona depois que o arquivo de entrada for gerado com proveniência,
 regras e classes verificadas. Os resultados do TEST não são computados por padrão.
