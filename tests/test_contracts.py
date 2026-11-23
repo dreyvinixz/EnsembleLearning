@@ -35,6 +35,14 @@ def test_rejects_naive_timezone(sample_frame):
         validate_frame(row)
 
 
+def test_accepts_iso8601_basic_offset(sample_frame):
+    row = sample_frame.copy()
+    row["features_available_at"] = row["features_available_at"].str.replace(
+        "-03:00", "-0300", regex=False
+    )
+    validate_frame(row)
+
+
 def test_rejects_duplicate_instrument_timestamp(sample_frame):
     row = __import__("pandas").concat([sample_frame, sample_frame.iloc[[0]]])
     with pytest.raises(ValueError, match="Duplicate"):

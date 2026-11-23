@@ -14,6 +14,7 @@ from ensemble_learning import __version__
 from ensemble_learning.baselines import CLASSICAL_MODELS, run_independent_classical
 from ensemble_learning.contracts import validate_frame
 from ensemble_learning.splits import dated_holdout
+from ensemble_learning.tracking import run_walk_forward
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -62,6 +63,21 @@ def main(argv: list[str] | None = None) -> int:
     args.output.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Report written: {args.output}")
     print("TEST was evaluated" if args.evaluate_test else "TEST reserved and NOT evaluated")
+    return 0
+
+
+def walk_forward_main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Tracked expanding walk-forward classical experiment")
+    parser.add_argument("--csv", type=Path, required=True, help="Development snapshot, Jan-May 2026 only")
+    parser.add_argument("--model", choices=CLASSICAL_MODELS, default="logreg")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--results", type=Path, default=Path("results"))
+    parser.add_argument("--experiment-id")
+    args = parser.parse_args(argv)
+    frame = validate_frame(pd.read_csv(args.csv))
+    result = run_walk_forward(frame, model_name=args.model, seed=args.seed,
+        data_path=args.csv, results_root=args.results, experiment_id=args.experiment_id)
+    print(f"Experiment artifacts: {result}")
     return 0
 
 

@@ -10,7 +10,7 @@ import pandas as pd
 from ensemble_learning import HORIZONS
 
 IDENTIFIERS = ("instrument", "session_date", "decision_time", "features_available_at")
-TIMEZONE_RE = re.compile(r"(Z|[+-][0-9]{2}:[0-9]{2})$", re.IGNORECASE)
+TIMEZONE_RE = re.compile(r"(Z|[+-][0-9]{2}:?[0-9]{2})$", re.IGNORECASE)
 
 
 def timestamp_column(df: pd.DataFrame, name: str) -> pd.Series:
