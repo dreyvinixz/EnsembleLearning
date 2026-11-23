@@ -1,15 +1,14 @@
 # Agent guide — EnsembleLearning
 
-Research repository. Preserve the distinction between retrospective label reconstruction,
-causal prediction, and trading PnL. Never infer B0 label availability from a horizon name.
-Do not ingest private data, secrets, external databases, or write to QuantBase/BovDB
-without an explicit authorized data contract and read-only adapter.
+This research is not GRU-only. Keep predictive architecture (LR/RF/HGB,
+MLP/CNN/LSTM/GRU, SVM future) separate from learning strategy (Independent,
+MTL, Voting, Bagging, Stacking, DAME hypothesis).
 
-Read docs/data-contract.md, docs/protocol.md, docs/roadmap.md and
-docs/implementation.md before changing model/data code. Changes involving labels,
-splits, feature generation or model selection require targeted tests and a discussion
-of information availability. Do not evaluate the reserved TEST just to debug.
-
-Do not claim experimental improvement or DAME novelty without evidence.
-Prefer a small coherent change plus tests and source manifest over a speculative
-end-to-end pipeline. Report what ran and what remains unimplemented.
+Read docs/data-contract.md, docs/protocol.md, docs/methods.md and
+docs/implementation.md before modifying data or model code.
+Do not treat retrospective labels or regimes as causal inputs.
+Do not infer label availability from horizon name; do not use TEST for
+debugging. Do not copy BovDB/QuantBase secrets or source databases.
+Require data contract approval, tests, and provenance before real training.
+No claims of DAME originality, scientific improvement or financial profit
+without independent evidence. Forward pass is not trained/validated model.
