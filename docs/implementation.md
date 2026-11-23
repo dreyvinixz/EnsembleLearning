@@ -1,5 +1,28 @@
 # Estado da implementação experimental
 
+## População WIN mensal v1
+
+`scripts/selecionar-win-contrato-mensal.py` congela o roster de um contrato por
+mês. O snapshot de desenvolvimento
+`data/processed/win_2026_single_contract_jan_may_v1/` e o CSV causal
+`data/processed/win_2026_single_contract_sequence_jan_may_v1.csv` foram gerados
+somente até maio e permanecem locais, fora do Git. O roster usa WING26 em janeiro,
+WINJ26 em fevereiro e março, WINM26 em abril e maio; junho WINQ26 é apenas o
+último contrato da figura e não entra na base de treino.
+
+Janeiro é uma escolha fixada pelo responsável, sem histórico local de dezembro
+para comprovar a cobertura mínima de 25%. Para os demais meses, o seletor exige
+vigência mensal completa, cobertura 60m/48 em pelo menos 25% dos pregões
+anteriores e ranking por volume anterior. Não usa MCC e não permite troca
+intramensal. O manifesto e o comparativo de população registram essa ressalva,
+hashes, amostras e classes.
+
+A extração preserva as 21 features, os alvos B0 de 5/10/15 minutos e o gate
+causal 60m/48. Features e rótulos/contextos permanecem isolados por contrato e
+sessão na rolagem. A população antiga não foi alterada; a reexecução dos
+baselines, Independent, MTL e métodos de ensemble já disponíveis no Stage 12
+está planejada, mas nenhum modelo foi treinado neste PR.
+
 ## Objetivo executável atual
 
 O problema implementado é classificação supervisionada dos rótulos retrospectivos

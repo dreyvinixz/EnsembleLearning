@@ -21,6 +21,21 @@ constraints.
 | #13 | Reproduce/adapt selected open-source benchmarks after protocol and license review | Specification only in `docs/stage13-external-benchmarks.md`; no model implemented |
 | Final evaluation | Freeze protocol after development and May validation; train permitted final models and evaluate June once | Reserved; must not be used for debugging, tuning or selection |
 
+## Reexecução para o universo de um contrato mensal
+
+O roster desta revisão é WING26 (jan), WINJ26 (fev–mar), WINM26 (abr–mai) e
+WINQ26 (jun). Junho permanece fora do novo snapshot; o CSV foi cortado em
+31/05/2026. Janeiro foi fixado pelo responsável e não possui evidência local de
+cobertura de dezembro para validar o corte de 25%.
+
+Próximos passos: reexecutar baselines clássicos, Independent e MTL no novo CSV
+com os mesmos folds/âncoras e seeds; depois, reexecutar os métodos Stage 12
+(Voting/seed averaging, block bagging, stacking OOF) sob a mesma população e
+orçamento comparável. Parear previsões com o legado por contrato, pregão,
+instante e escala e apresentar separadamente cobertura e suporte. O comparativo
+atual registra apenas a variação de população (63.517 para 44.925 âncoras
+conjuntas até maio), não desempenho de modelos. MCC não seleciona contratos.
+
 ## Current split and model matrix
 
 January initializes training. Folds 01–03 produce OOF predictions for February,

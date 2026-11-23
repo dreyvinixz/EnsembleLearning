@@ -28,6 +28,7 @@ def main() -> int:
                         help="Read-only Parquet base already extracted through May only")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--end-date", default="2026-05-31")
+    parser.add_argument("--dataset-id")
     args = parser.parse_args()
     base = args.base if args.base.is_absolute() else ROOT / args.base
     output = args.output if args.output.is_absolute() else ROOT / args.output
@@ -61,7 +62,7 @@ def main() -> int:
         serializable[column] = serializable[column].map(lambda value: value.isoformat())
     serializable.to_csv(output, index=False)
     manifest = {
-        "dataset_id": "win_2026_sequence_jan_may_v1",
+        "dataset_id": args.dataset_id or output.stem,
         "status": "development_context_and_retrospective_targets",
         "snapshot": output.name,
         "snapshot_sha256": sha256(output),
