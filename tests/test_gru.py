@@ -1,7 +1,7 @@
 import pytest
 
 torch = pytest.importorskip("torch")
-from ensemble_learning.gru import IndependentGRU, MultiTaskGRU  # noqa: E402
+from ensemble_learning.gru import IndependentGRU, MultiTaskGRU
 
 
 def test_gru_outputs_have_expected_shapes():
