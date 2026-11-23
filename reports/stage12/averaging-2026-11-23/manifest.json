@@ -1,0 +1,55 @@
+{
+  "method": "uniform mean of probabilities; fixed weights, no fitted meta-model",
+  "seed_ensemble_members": 2,
+  "soft_voting_members": 8,
+  "soft_voting_sources": "uniform seed ensembles across 4 architectures x 2 strategies",
+  "fitted_on_oof": false,
+  "fit_period": null,
+  "oof_reported_as_development": "fold01-fold03, February-April",
+  "may_used_for_fitting_or_weight_selection": false,
+  "june_accessed": false,
+  "snapshot_sha256": "a3c9ea7ff2d9fe9c103a06a5ff211e41ebccb1ce081fe46c8f55e6e70bc2ca91",
+  "baseline_manifest_sha256": "5aacbaf5049aea528b786df45b50d4034709d8368558e145bdf3d550de4421dd",
+  "source_prediction_sha256": {
+    "EXP_STAGE11_REFIT_MLP_INDEPENDENT_42": "52d716c1b36f7d983597f4e3b36bcf3e535d29ba654cf34d7235e60950c4446f",
+    "EXP_STAGE11_REFIT_MLP_INDEPENDENT_43": "f8ddf705a2dbb192ac174e5adafa81bc1b3ae79ce28167efe1af9e8979196375",
+    "EXP_STAGE11_REFIT_MLP_MTL_42": "9e86c9022f9bdb00907eabfe25d846561cba61aea86deab3f718d7fd5ad040a6",
+    "EXP_STAGE11_REFIT_MLP_MTL_43": "852f6b6a6e13d1fdaecc00ab7bc314c8f566925bb20af4a18849c5f1785d84e9",
+    "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_42": "575381dfef1e62245730752b6f61dde1b7e85d53aae5cd168ac6eda3b93fbbb0",
+    "EXP_STAGE11_REFIT_CNN1D_INDEPENDENT_43": "d1bb718a1b10eaeabe0cf5103caa54525f91979c58dd97c99e1e88d05086c79f",
+    "EXP_STAGE11_REFIT_CNN1D_MTL_42": "7a3a3aa3a118643241907291c686d9841251b18ec739b6fa90ff08ca7b584503",
+    "EXP_STAGE11_REFIT_CNN1D_MTL_43": "9a2d452304be0ca4098646fd71bf56fe1f6e27163543e0b1aee278adde899c55",
+    "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_42": "e36cabf1439fc1a1d1464258beb6c5592e10a2a164194f6c61ed44d4e103b32c",
+    "EXP_STAGE11_REFIT_LSTM_INDEPENDENT_43": "fc8dea8259d6d44140994cbe38ac8b2c13d7766d18770d16430f1c7fde7be1c0",
+    "EXP_STAGE11_REFIT_LSTM_MTL_42": "8c8e57de3c206ca73d57598344f4fe2927189813bb8f235a089117e8dd084859",
+    "EXP_STAGE11_REFIT_LSTM_MTL_43": "783e462bc90535f576c79361497a95ee682ae45530f81c7d86f6f89966acf377",
+    "EXP_STAGE11_REFIT_GRU_INDEPENDENT_42": "351fde1b04bbfea9a069ef41467ad0dfe3616fbc85c4c4e1e0800442913c28b0",
+    "EXP_STAGE11_REFIT_GRU_INDEPENDENT_43": "900437eebd43ba50e35554c35b975431c045d96d57dd6e29ed6342d54dabd253",
+    "EXP_STAGE11_REFIT_GRU_MTL_42": "a3fd76ace9d6d7fdf9125d9b2fa4fc80d29f5313ac2865c8ff044b51cf5b7b8f",
+    "EXP_STAGE11_REFIT_GRU_MTL_43": "c21a6781f3afd88ed6855228df4f224e0ccd245b26017d7a9c859e46b018cc29",
+    "EXP_STAGE11_PAIR_CLASSICAL_42": "cf29ce2dfeccdea9fc6bbb6177f6b01da70ad9d4f726182d2809c68566216c49"
+  },
+  "source_model_commits": [
+    "6fa1ea6555d6cb7078e29663ad8fa8d184be28f3"
+  ],
+  "prediction_rows_per_ensemble": 170100,
+  "ensemble_count": 9,
+  "metrics": [
+    "MCC",
+    "accuracy",
+    "balanced_accuracy",
+    "macro_f1",
+    "roc_auc",
+    "average_precision",
+    "brier",
+    "log_loss",
+    "ECE"
+  ],
+  "paired_bootstrap": {
+    "unit": "session_date",
+    "iterations": 5000,
+    "seed_base": 42,
+    "multiplicity_adjustment": null
+  },
+  "interpretation": "Exploratory; equal-weight aggregation is pre-specified, not tuned on May or June."
+}

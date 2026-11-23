@@ -206,3 +206,27 @@ sequências ou treinador neural. A execução de testes usa dados sintéticos.
 ## Resultados Stage 12 após refit — 2026-11-23
 
 A matriz nova de 16 execuções e a auditoria pareada estão documentadas em `reports/stage12/refit-2026-11-23/`. Todas as execuções produziram 170.100 previsões, com igualdade completa de população e classes em relação ao baseline. A avaliação reporta MCC médio sobre duas seeds; não há vencedor global. OOF contém 44.702 observações por escala em 59 sessões, e maio 11.998 por escala em 17 sessões. Foram usados 5.000 bootstraps pareados de sessão, sem correção de multiplicidade; portanto, conclusões continuam exploratórias. Junho não foi acessado.
+
+## Etapa #12 — ensembles executados — 2026-11-23
+
+Foram implementados e executados Voting, Seed Ensemble, Block Bagging e
+Stacking em previsões pós-refit. Voting calcula média uniforme entre oito
+Seed Ensembles; cada Seed Ensemble combina seeds 42/43 da mesma arquitetura e
+estratégia. Block Bagging usa Logistic Regression, 10 membros e blocos de
+cinco sessões. Stacking ajusta Logistic Regression por escala sobre oito
+probabilidades-base usando apenas folds anteriores: fold01→fold02,
+fold01–02→fold03 e fold01–03→maio. Maio não foi usado para ajuste/seleção;
+junho não foi consultado.
+
+Voting e Block Bagging cobrem 170.100 previsões, pareadas com o baseline;
+Stacking cobre 132.192 previsões de março a maio, pois fold01 não tem OOF
+anterior para treinar o metamodelo. Block Bagging V2 gerou 1.701.000 previsões
+de membros; tempo de parede 98,31 s e soma de ajustes 64,93 s. Os relatórios
+agregados, CSVs e manifestos estão em `reports/stage12/`.
+
+Diferenças de MCC de Voting e Stacking contra Logistic Regression têm ICs
+pareados por sessão que incluem zero nas células reportadas. No Block Bagging,
+dois de seis ICs de maio excluem zero em direções opostas; há 12 contrastes sem
+correção de multiplicidade. Não há evidência suficiente de vantagem geral.
+Resultados são exploratórios e não medem PnL. Previsões completas de amostras
+e membros permanecem no Linux, fora do Git.
