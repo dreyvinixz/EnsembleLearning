@@ -170,9 +170,15 @@ def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
     for (scale,instrument),group in predictions.groupby(["scale","instrument"],sort=True):
         by_instrument.append({"scale":scale,"instrument":instrument,**classification_metrics(group.y_true,group.p_up)})
     pd.DataFrame(by_instrument).to_csv(work_dir/"metrics_by_instrument.csv",index=False)
-    for scale,g in predictions.groupby("scale",sort=True):
-        metrics.append({"scale":scale,**classification_metrics(g.y_true,g.p_up),
-            "mcc_session_bootstrap_95ci":_session_bootstrap_ci(g,seed=seed)})
+    evaluation_sets = {
+        "development_oof_feb_apr": predictions.loc[predictions.fold != "fold04"],
+        "may_validation": predictions.loc[predictions.fold == "fold04"],
+    }
+    for evaluation_set, evaluation_predictions in evaluation_sets.items():
+        for scale, group in evaluation_predictions.groupby("scale", sort=True):
+            metrics.append({"evaluation_set": evaluation_set, "scale": scale,
+                **classification_metrics(group.y_true, group.p_up),
+                "mcc_session_bootstrap_95ci": _session_bootstrap_ci(group, seed=seed)})
     predictions.to_parquet(work_dir/"predictions.parquet",index=False)
     pd.DataFrame(metrics).to_csv(work_dir/"metrics_by_horizon.csv",index=False)
     pd.DataFrame(history).to_csv(work_dir/"training_history.csv",index=False)
@@ -197,6 +203,6 @@ def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
             "bootstrap":"500 resamples of whole sessions; diagnostic 95% percentile interval"}}
     (work_dir/"manifest.json").write_text(json.dumps(manifest,indent=2,default=str),encoding="utf-8")
     (work_dir/"metrics.json").write_text(json.dumps({"primary_metric":"mcc_provisional","by_fold":summaries,
-        "aggregate_by_horizon":metrics,"duration_seconds":duration},indent=2),encoding="utf-8")
+        "by_evaluation_set_and_horizon":metrics,"duration_seconds":duration},indent=2),encoding="utf-8")
     os.replace(work_dir,exp_dir)
     return exp_dir

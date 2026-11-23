@@ -61,6 +61,8 @@ def test_walk_forward_creates_reproducible_artifacts_without_june(tmp_path):
     predictions = pd.read_parquet(output / "predictions.parquet")
     assert set(predictions.scale) == {"5m", "10m", "15m"}
     assert predictions.session_date.max() <= "2026-05-31"
+    horizon_metrics = pd.read_csv(output / "metrics_by_horizon.csv")
+    assert set(horizon_metrics.evaluation_set) == {"development_oof_feb_apr", "may_validation"}
     with pytest.raises(FileExistsError):
         run_walk_forward(frame, data_path=csv, results_root=tmp_path / "results",
                          seed=19, experiment_id=output.name)
