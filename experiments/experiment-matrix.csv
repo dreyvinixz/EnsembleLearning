@@ -1,0 +1,16 @@
+id,fase,metodo,rotulagem,prioridade,status,observacao
+A01,A,auditoria,B0 original,nucleo,planejado,"5 10 e 15 minutos; referencia independente a definir"
+B01,B,Independent Learning,B0 original,nucleo,planejado,baseline por horizonte
+B02,B,MTL,B0 original,nucleo,planejado,comparacao por tarefa
+B03,B,MTL PCGrad,B0 original,complementar,planejado,controle de conflitos
+B04,B,Voting,B0 original,nucleo,planejado,agregacao simples
+B05,B,Seed ensemble,B0 original,nucleo,planejado,controle de sementes
+B06,B,Block bagging,B0 original,nucleo,planejado,blocos temporais
+B07,B,Stacking,B0 original,nucleo,planejado,previsoes cronologicas fora da amostra
+B08,B,Boosting,B0 original,complementar,planejado,orcamento a definir
+C01,C,DAME,B0 original,condicional,planejado,apos evidencia e especificacao
+D01,D,Independent Learning,revisada ou filtrada,condicional,planejado,regra e populacao comum a definir
+D02,D,MTL,revisada ou filtrada,condicional,planejado,regra e populacao comum a definir
+D03,D,Block bagging,revisada ou filtrada,condicional,planejado,regra e populacao comum a definir
+D04,D,Stacking,revisada ou filtrada,condicional,planejado,regra e populacao comum a definir
+D05,D,DAME,revisada ou filtrada,condicional,planejado,apos especificacao e congelamento

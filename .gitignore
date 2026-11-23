@@ -1,0 +1,20 @@
+# Dados e artefatos locais, potencialmente grandes ou sensíveis
+/data/*
+!/data/README.md
+/results/*
+!/results/README.md
+*.sqlite
+*.sqlite3
+*.db
+*.parquet
+*.pkl
+*.pt
+*.pth
+*.ckpt
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
