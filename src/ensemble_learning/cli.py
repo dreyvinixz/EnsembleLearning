@@ -74,10 +74,68 @@ def walk_forward_main(argv: list[str] | None = None) -> int:
     parser.add_argument("--results", type=Path, default=Path("results"))
     parser.add_argument("--experiment-id")
     args = parser.parse_args(argv)
-    frame = validate_frame(pd.read_csv(args.csv))
+    from ensemble_learning.contracts import validate_sequence_frame
+    frame = validate_sequence_frame(pd.read_csv(args.csv))
     result = run_walk_forward(frame, model_name=args.model, seed=args.seed,
         data_path=args.csv, results_root=args.results, experiment_id=args.experiment_id)
     print(f"Experiment artifacts: {result}")
+    return 0
+
+
+def neural_walk_forward_main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Tracked PyTorch B0 sequence experiments")
+    parser.add_argument("--csv", type=Path, required=True,
+                        help="Full-context B0 snapshot, Jan-May 2026; unlabeled candles are retained")
+    parser.add_argument("--architecture", choices=("all", "mlp", "cnn1d", "lstm", "gru"),
+                        default="all")
+    parser.add_argument("--strategy", choices=("all", "independent", "mtl"), default="all")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--device", default="cuda", help="cuda by default; also accepts cpu or auto")
+    parser.add_argument("--results", type=Path, default=Path("results"))
+    parser.add_argument("--experiment-id", help="Only valid for a single architecture/strategy pair")
+    parser.add_argument("--epochs", type=int, default=40)
+    parser.add_argument("--patience", type=int, default=6)
+    parser.add_argument("--batch-size", type=int, default=256)
+    parser.add_argument("--precision", choices=("fp32", "bf16", "fp16"), default="fp32",
+                        help="CUDA mixed precision; fp32 preserves the reference path")
+    parser.add_argument("--num-workers", type=int, default=0,
+                        help="DataLoader processes; benchmark 0/2/4 on the target host")
+    parser.add_argument("--compile", action="store_true",
+                        help="Enable torch.compile; include compile startup cost in timing")
+    parser.add_argument("--allow-tf32", action="store_true",
+                        help="Enable faster CUDA TF32 math; numerical results may differ")
+    parser.add_argument("--hidden-size", type=int, default=32)
+    parser.add_argument("--learning-rate", type=float, default=1e-3)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    args = parser.parse_args(argv)
+
+    from ensemble_learning.contracts import validate_sequence_frame
+    from ensemble_learning.neural_training import (
+        NEURAL_ARCHITECTURES,
+        STRATEGIES,
+        run_neural_experiment,
+    )
+
+    frame = validate_sequence_frame(pd.read_csv(args.csv))
+    architectures = NEURAL_ARCHITECTURES if args.architecture == "all" else (args.architecture,)
+    strategies = STRATEGIES if args.strategy == "all" else (args.strategy,)
+    if args.experiment_id and (len(architectures) != 1 or len(strategies) != 1):
+        parser.error("--experiment-id requires one architecture and one strategy")
+    outputs = []
+    for architecture in architectures:
+        for strategy in strategies:
+            result = run_neural_experiment(
+                frame, architecture=architecture, strategy=strategy,
+                data_path=args.csv, results_root=args.results, seed=args.seed,
+                experiment_id=args.experiment_id, device_name=args.device,
+                epochs=args.epochs, patience=args.patience, batch_size=args.batch_size,
+                hidden_size=args.hidden_size, learning_rate=args.learning_rate,
+                weight_decay=args.weight_decay, precision=args.precision,
+                num_workers=args.num_workers, compile_model=args.compile,
+                allow_tf32=args.allow_tf32,
+            )
+            outputs.append(str(result))
+    print("\n".join(outputs))
     return 0
 
 

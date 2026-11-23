@@ -81,6 +81,68 @@ def validate_frame(frame: pd.DataFrame, horizons: tuple[int, ...] = HORIZONS) ->
     return df.sort_values(["decision_time", "instrument"]).reset_index(drop=True)
 
 
+def validate_sequence_frame(frame: pd.DataFrame, horizons: tuple[int, ...] = HORIZONS) -> pd.DataFrame:
+    """Validate a full candle context grid whose retrospective targets may be null.
+
+    Null targets are allowed only on context candles; any populated B0 target
+    must remain binary and carry explicit, ordered information/availability
+    timestamps. Target and label metadata columns are never model features.
+    """
+    df = frame.copy(deep=True)
+    required = set(IDENTIFIERS)
+    for horizon in horizons:
+        required.update((
+            f"y_{horizon}m", f"label_info_start_{horizon}m",
+            f"label_info_end_{horizon}m", f"label_known_at_{horizon}m",
+        ))
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Missing sequence context columns: {missing}")
+    if df.empty:
+        raise ValueError("Input sequence context is empty")
+    if df[["instrument", "session_date"]].isna().any().any():
+        raise ValueError("Instrument and session_date must be populated")
+    if not df["session_date"].astype(str).str.fullmatch(r"\d{4}-\d{2}-\d{2}").all():
+        raise ValueError("session_date must use YYYY-MM-DD")
+
+    features = feature_columns(df)
+    for column in features:
+        df[column] = pd.to_numeric(df[column], errors="raise")
+        if np.isinf(df[column].to_numpy(dtype=float, na_value=np.nan)).any():
+            raise ValueError(f"{column}: infinite values are forbidden")
+        if df[column].isna().all():
+            raise ValueError(f"{column}: entirely missing feature")
+    for column in ("decision_time", "features_available_at"):
+        df[column] = timestamp_column(df, column)
+    if (df["features_available_at"] > df["decision_time"]).any():
+        raise ValueError("A feature is marked available after its decision_time")
+
+    for horizon in horizons:
+        target = f"y_{horizon}m"
+        populated = df[target].notna()
+        if not df.loc[populated, target].isin([0, 1]).all():
+            raise ValueError(f"{target}: populated B0 targets must be binary 0/1")
+        df.loc[populated, target] = df.loc[populated, target].astype(int)
+        columns = (
+            f"label_info_start_{horizon}m", f"label_info_end_{horizon}m",
+            f"label_known_at_{horizon}m",
+        )
+        for column in columns:
+            nonnull = df[column].notna()
+            df.loc[nonnull, column] = timestamp_column(df.loc[nonnull], column)
+        has_metadata = df[list(columns)].notna().all(axis=1)
+        if (populated & ~has_metadata).any():
+            raise ValueError(f"{target}: populated targets require label interval and availability")
+        valid = populated & has_metadata
+        start, end, known = (df.loc[valid, column] for column in columns)
+        if ((start > end) | (end > known)).any():
+            raise ValueError(f"{horizon}m: invalid label information/confirmation interval")
+
+    if df.duplicated(["instrument", "session_date", "decision_time"]).any():
+        raise ValueError("Duplicate instrument x session x decision observations")
+    return df.sort_values(["decision_time", "instrument"]).reset_index(drop=True)
+
+
 def latest_label_confirmation(df: pd.DataFrame, horizons: tuple[int, ...] = HORIZONS) -> pd.Series:
     """Maximum target availability across all tasks at each decision."""
     return df[[f"label_known_at_{h}m" for h in horizons]].max(axis=1)

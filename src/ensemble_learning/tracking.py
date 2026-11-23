@@ -29,7 +29,12 @@ from sklearn.metrics import (
 
 from ensemble_learning import HORIZONS
 from ensemble_learning.baselines import make_classical_model
-from ensemble_learning.contracts import feature_columns, latest_label_confirmation
+from ensemble_learning.contracts import (
+    feature_columns,
+    latest_label_confirmation,
+    validate_sequence_frame,
+)
+from ensemble_learning.sequences import build_causal_windows, summarize_eligibility
 
 
 def _sha(path: Path) -> str:
@@ -50,8 +55,10 @@ def walk_forward_folds(frame: pd.DataFrame, *, start_month: int = 2, end_month: 
         if train.empty or test.empty:
             continue
         cutoff = test.decision_time.min()
-        train = train.loc[latest_label_confirmation(train) < cutoff]
-        if train.empty:
+        unavailable = latest_label_confirmation(train).ge(cutoff)
+        targets = [f"y_{h}m" for h in HORIZONS]
+        train.loc[unavailable, targets] = np.nan
+        if not train[targets].notna().all(axis=1).any():
             continue
         folds.append({"fold": f"fold{month-1:02d}", "train": train, "oof": test,
             "train_start": train.session_date.min(), "train_end": train.session_date.max(),
@@ -121,6 +128,7 @@ def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
     dates = frame.session_date.astype(str)
     if dates.min() < "2026-01-01" or dates.max() > "2026-05-31":
         raise ValueError("Experiment input must contain development dates Jan-May 2026 only")
+    frame = validate_sequence_frame(frame)
     exp_dir = results_root / exp_id
     if exp_dir.exists():
         raise FileExistsError(f"Experiment already exists: {exp_dir}")
@@ -133,10 +141,21 @@ def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
     history=[]; model_params={}
     model_dir=work_dir/"checkpoints"; model_dir.mkdir()
     folds = walk_forward_folds(frame)
+    coverage = []
     for fold in folds:
         fold_rows=[]
+        targets = [f"y_{h}m" for h in HORIZONS]
+        populations = {}
+        for partition in ("train", "oof"):
+            context = fold[partition]
+            windows = build_causal_windows(context, feature_columns=cols, target_columns=targets)
+            populations[partition] = windows.anchors
+            coverage.append({"fold": fold["fold"], "partition": partition,
+                **summarize_eligibility(context, windows, targets)})
+            if windows.anchors.empty:
+                raise ValueError(f"No eligible anchors for {fold['fold']} {partition}")
         for horizon in HORIZONS:
-            label=f"y_{horizon}m"; train=fold["train"]; oof=fold["oof"]
+            label=f"y_{horizon}m"; train=populations["train"]; oof=populations["oof"]
             if set(train[label].unique()) != {0,1}:
                 raise ValueError(f"Fold {fold['fold']} {label} lacks both train classes")
             model=make_classical_model(model_name,seed); t0=time.perf_counter()
@@ -158,6 +177,7 @@ def run_walk_forward(frame: pd.DataFrame, *, model_name="logreg", seed=42,
         summaries.append({"fold":fold["fold"],"train_start":fold["train_start"],"train_end":fold["train_end"],
             "oof_start":fold["oof_start"],"oof_end":fold["oof_end"],"horizons":fold_rows})
     predictions=pd.concat(rows,ignore_index=True); metrics=[]; detailed=[]; robust=[]
+    pd.DataFrame(coverage).to_csv(work_dir / "coverage.csv", index=False)
     for (fold_name,scale),group in predictions.groupby(["fold","scale"],sort=True):
         metric=classification_metrics(group.y_true,group.p_up)
         detailed.append({"fold":fold_name,"scale":scale,**metric})

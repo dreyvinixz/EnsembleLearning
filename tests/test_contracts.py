@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import pytest
 
-from ensemble_learning.contracts import validate_frame
+from ensemble_learning.contracts import validate_frame, validate_sequence_frame
 
 
 def test_valid_snapshot(sample_frame):
@@ -47,3 +47,19 @@ def test_rejects_duplicate_instrument_timestamp(sample_frame):
     row = __import__("pandas").concat([sample_frame, sample_frame.iloc[[0]]])
     with pytest.raises(ValueError, match="Duplicate"):
         validate_frame(row)
+
+
+def test_sequence_contract_allows_null_targets_on_context_candles(sample_frame):
+    row = sample_frame.copy()
+    row.loc[0, ["y_5m", "y_10m", "y_15m"]] = None
+    validated = validate_sequence_frame(row)
+    assert validated[["y_5m", "y_10m", "y_15m"]].isna().iloc[0].all()
+
+
+def test_sequence_contract_still_rejects_features_from_after_decision(sample_frame):
+    row = sample_frame.copy()
+    row.loc[0, "features_available_at"] = (
+        __import__("pandas").Timestamp(row.loc[0, "decision_time"]) + timedelta(seconds=1)
+    ).isoformat()
+    with pytest.raises(ValueError, match="available after"):
+        validate_sequence_frame(row)

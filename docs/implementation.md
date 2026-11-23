@@ -1,4 +1,96 @@
-# Fase 0 — Implementação reproduzível (PR inicial)
+# Estado da implementação experimental
+
+## Objetivo executável atual
+
+O problema implementado é classificação supervisionada dos rótulos retrospectivos
+B0 binários em 5, 10 e 15 minutos. Entradas são exclusivamente colunas `x_` de
+candles/indicadores disponíveis até a decisão; os rótulos e metadados de rótulo
+são alvos/controle temporal, nunca features. Independent treina um modelo por
+escala; MTL compartilha encoder e produz três saídas. Isso estima as classes B0,
+não o retorno de preço em t+5/10/15 nem rentabilidade de trading.
+
+## Etapa #11 — treinador neural
+
+`ensemble-neural-walk-forward` executa MLP, CNN 1D, LSTM ou GRU em Independent
+ou MTL. As janelas são 60 minutos de relógio, com pelo menos 48 candles
+observados, máscara explícita para ausências, sessões/contratos separados e
+primeira decisão às 10:00 local. O snapshot conserva candles sem rótulo para
+contexto. Os folds 01–03 geram OOF de fevereiro–abril; fold 04 é validação
+externa de maio. Janeiro inicia o treino. Junho é rejeitado pelo runner e não
+foi avaliado.
+
+O treino exige CUDA por padrão (`--device cuda`; use `--device cpu` explicitamente
+para testes). Também aceita `--precision bf16|fp16`, `--allow-tf32`,
+`--num-workers N` e `--compile`. CUDA usa batches pinned e cópias non-blocking.
+As opções FP32, TF32, workers e compilação devem ser comparadas em benchmark
+sem junho; precisão/TF32/compilação podem alterar valores ou custo inicial. O
+modo padrão mantém FP32, algoritmos determinísticos, cuDNN benchmark desligado,
+zero workers e sem compilação. `--compile` precisa de compilador C para Triton;
+no host Linux atual, a tentativa falhou por ausência de `cc`/`gcc`, então deve
+permanecer desligado. O manifesto registra essas escolhas. Testes CPU
+não são evidência de treino GPU.
+
+O AdamW fused é ativado automaticamente em CUDA. Smoke tests sintéticos no RTX
+5060 Ti concluíram em FP32, BF16+TF32+2 workers e FP16 com GradScaler, gerando
+264 probabilidades válidas por execução e sem consultar junho. No conjunto
+pequeno de teste, FP32 levou 1,916 s, BF16+TF32+workers 2,144 s e FP16 2,433 s;
+esses tempos incluem quatro folds, inicialização e escrita de artefatos e não
+representam benchmark de throughput. O benchmark sintético maior favoreceu
+AdamW fused e montagem vetorizada de janelas; AMP não acelerou essas redes e
+TF32 quase não alterou o throughput. Ainda não há comparação end-to-end com o
+snapshot real. Workers, AMP, TF32 e batch size devem ser escolhidos após essa
+validação e comparação de métricas contra FP32.
+
+`python scripts/benchmark_neural_gpu.py` faz benchmark sintético, salva CSVs e
+manifesto em um diretório único sob `results/gpu-benchmarks/`, e nunca lê os
+dados do estudo. Na RTX 5060 Ti, três repetições por configuração mostraram
+AdamW fused ~1,3–1,5× o unfused nas redes/batches medidos; BF16/FP16 ficaram
+abaixo do FP32 (aprox. 0,60–0,79×); TF32 ficou perto do FP32 (0,98–1,03×).
+Batch 512 elevou throughput sintético, mas altera o regime de otimização e não
+foi adotado como configuração científica. Depois de vetorizada a montagem das
+janelas, o benchmark sintético do `_WindowDataset` mediu mediana ~355 mil
+amostras/s com zero workers, ~122 mil com dois e ~107 mil com quatro. Antes da
+vetorização, zero workers atingia ~94 mil. A melhoria de ~3,8× é da montagem e
+transferência no microbenchmark; a materialização reserva RAM proporcional a
+N × 60 × (features+mask) × 4 bytes, informada por fold em `training_summary`.
+O conjunto continua sintético; esses números não são desempenho do treinamento
+BovDB.
+
+Cada execução salva probabilidades individuais, métricas por fold/sessão/ativo,
+histórico por época, checkpoints e manifesto com hash do CSV, commit, ambiente,
+GPU/memória, durações e configuração. A partição interna de early stopping é
+cronológica e purgada pela disponibilidade declarada. `fit_start`/`fit_end`
+descrevem o subconjunto realmente usado para ajustar pesos.
+
+O clássico e o neural usam o mesmo snapshot completo e exigem os três alvos,
+60 minutos de relógio e 48 candles para cada âncora. `coverage.csv` registra
+candles de contexto sem os três alvos, decisões antes das 10h, cobertura
+insuficiente e âncoras aceitas por fold e partição. Após a purga, candles sem
+rótulo continuam disponíveis como contexto, mas não são exemplos de ajuste.
+`ensemble-pair <predictions_a.parquet> <predictions_b.parquet> <novo-diretorio>`
+compara a interseção de instrumento, sessão, instante, escala e fold; rejeita
+chaves duplicadas e diferenças em `y_true` e registra métricas e contagens.
+Escolha uma seed por arquivo: múltiplas seeds com a mesma chave são rejeitadas.
+O clássico ajusta usando todo o bloco de treino disponível; o neural reserva
+sessões para early stopping. O reajuste neural sobre todo o bloco após escolher
+épocas ainda não está implementado, portanto essa diferença deve ser considerada
+ao interpretar comparações.
+
+### Limites científicos e trabalho restante
+
+- A liberação pós-sessão de B0 é uma hipótese conservadora simulada; não é hora
+  histórica observada. Origem/vintage e semântica do rótulo permanecem descritas
+  em `auditoria-gerador-b0.md` e `disponibilidade-rotulos.md`.
+- Ainda não há execução neural real concluída nem benchmark end-to-end no
+  snapshot aprovado. Os benchmarks disponíveis usam dados sintéticos. O host
+  de destino foi identificado como RTX 5060 Ti, mas disponibilidade do hardware
+  não é resultado experimental.
+- O runner de teste final de junho, seleção final após maio, calibração treinada
+  sem vazamento, ensembles, boosting comparativo, PCGrad e DAME não estão
+  implementados nesta etapa. Não executar junho durante desenvolvimento.
+- A matriz inclui 4 folds e uma seed por configuração, salvo execução explícita
+  adicional. Comparações confirmatórias e orçamento equitativo ainda precisam
+  ser congelados no protocolo.
 
 ## Etapa #10 — Walk-forward e rastreamento de experimentos (2026-11-23)
 
@@ -38,10 +130,9 @@ Limitações remanescentes desta etapa: sem ajuste de hiperparâmetros/early sto
 calibração pós-treino, métricas por regime, risco seletivo, intervalos pareados,
 correção de multiplicidade ou renderização automática de figuras. A cobertura
 temporal foi controlada por folds; disponibilidade real de rótulos permanece
-simulada pós-sessão. `docs/roadmap.md` não existe neste checkout; o plano ativo
-está em `docs/protocol.md` e no `AI_HANDOFF.md`.
+simulada pós-sessão. O roadmap atualizado está em `docs/roadmap.md`.
 
-## O que já existe em código
+## Contrato legado inicial
 - Validador CSV explícito para rótulos **binários 0/1** (uma escolha de execução, **não** afirmação sobre o contrato real do B0).
 - Timestamp de decisão, disponibilidade mais recente dos atributos e intervalos informacionais completos por rótulo.
 - Holdout por sessões inteiras, partição igual para todos os ativos e purge conservador usando o instante mais tardio de confirmação entre 5/10/15m.
@@ -85,7 +176,11 @@ executar com --evaluate-test --protocol-id <identificador>, apontando para outro
 arquivo de saída. Os argumentos não garantem congelamento automaticamente;
 o controle científico depende de revisão e disciplina experimental.
 
-## Pendente
+Este contrato CSV foi a primeira especificação de referência e pode não refletir
+os formatos/parquet versionados mais recentes. Antes de gerar novos dados, seguir
+`docs/data-contract.md`, `docs/protocol.md` e o manifesto do snapshot aprovado.
+
+## Pendências gerais do estudo
 
 Modelos tabulares disponíveis via `--model`: `logreg`, `random_forest`,
 `hist_gradient_boosting` e `xgboost`. MLP, CNN, LSTM e GRU independentes e

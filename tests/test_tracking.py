@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -31,8 +31,8 @@ def _development_frame():
     for month in range(1, 6):
         for day in (2, 3):
             session = f"2026-{month:02d}-{day:02d}"
-            for minute in range(8):
-                t = datetime.fromisoformat(f"{session}T14:{minute:02d}:00+00:00")
+            for minute in range(70):
+                t = datetime.fromisoformat(f"{session}T12:01:00+00:00") + timedelta(minutes=minute)
                 row = {"instrument": "SYNTH", "session_date": session,
                     "decision_time": t.isoformat(), "features_available_at": t.isoformat(),
                     "x_signal": float(minute % 2), "x_noise": float(day + minute)}
