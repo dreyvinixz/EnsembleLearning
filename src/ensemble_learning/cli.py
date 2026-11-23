@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 
 from ensemble_learning import __version__
-from ensemble_learning.baselines import run_independent_logreg
+from ensemble_learning.baselines import CLASSICAL_MODELS, run_independent_classical
 from ensemble_learning.contracts import validate_frame
 from ensemble_learning.splits import chronological_holdout
 
@@ -21,8 +21,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--csv", type=Path, required=True, help="Approved snapshot, no DB writes")
     parser.add_argument("--validation-sessions", type=int, required=True)
     parser.add_argument("--test-sessions", type=int, required=True)
+    parser.add_argument("--model", choices=CLASSICAL_MODELS, default="logreg")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--output", type=Path, default=Path("results/independent_logreg.json"))
+    parser.add_argument("--output", type=Path, default=Path("results/independent_baseline.json"))
     parser.add_argument("--evaluate-test", action="store_true", help="One-time final holdout evaluation")
     parser.add_argument("--protocol-id", default=None, help="Frozen preregistered protocol reference")
     args = parser.parse_args(argv)
@@ -36,8 +37,8 @@ def main(argv: list[str] | None = None) -> int:
         validation_sessions=args.validation_sessions,
         test_sessions=args.test_sessions,
     )
-    outcome = run_independent_logreg(
-        split, seed=args.seed, evaluate_test=args.evaluate_test
+    outcome = run_independent_classical(
+        split, model_name=args.model, seed=args.seed, evaluate_test=args.evaluate_test
     )
     report = {
         "version": __version__,
