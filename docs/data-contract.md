@@ -1,5 +1,26 @@
 # Contrato de dados e rótulos
 
+## Revisão do universo WIN mensal v1
+
+A versão vigente do seletor de estudo fixa exatamente um contrato para todos os
+pregões regulares do mês, sem substituição intramensal. A elegibilidade exige
+vigência até o último pregão regular do mês-alvo, pelo menos 25% dos pregões
+regulares do mês anterior com uma janela causal de 60 minutos contendo 48
+candles fechados, volume anterior positivo sem linhas de volume nulo e ranking
+por volume anterior (desempates por negócios e ticker). MCC e qualquer alvo B0
+são proibidos na seleção. A programação e os candidatos são versionados em
+`reports/win_single_contract_v1/`; não substituir os dados, manifestos ou
+resultados do protocolo anterior.
+
+O ranking utiliza o volume de `price1` dentro do BovDB; a equivalência de
+unidade com o volume dos boletins B3 não está resolvida. O responsável fixou WING26 para janeiro; a cobertura WIN de dezembro não está
+disponível no snapshot local e o gate de 25% não pode ser verificado para esse
+mês. A seleção de fevereiro a junho usa os critérios anteriores, mas ainda é
+uma reconstrução retrospectiva: ela não prova que listagem, volume ou vintage
+estavam disponíveis na data de decisão. A figura mostra cobertura observada de
+WINQ26 em junho, mas junho permanece fora da extração da nova base e da avaliação
+nesta revisão.
+
 Este contrato é uma especificação inicial, não uma descrição verificada do banco. Preencher um manifesto por snapshot: origem e permissão, caminho local sem credenciais, hash, versão/esquema, extração, período, ativos, fuso, calendário, sessão, frequência e integridade. Manter fontes em modo somente leitura e fora do Git. Não presumir que bases ou estudos anteriores sejam equivalentes.
 
 ## Unidade e disponibilidade

@@ -1,0 +1,441 @@
+{
+  "protocol_id": "win_single_contract_monthly_v1",
+  "source_period_cap": "2026-05-31",
+  "january_selection": "WING26 fixed by study owner; December coverage gate cannot be verified from local history",
+  "base_manifest_sha256": "df8a55993ec342ad3a9143302d6d4f97ed72ed730a738e846d85c82857191961",
+  "sequence_snapshot_sha256": "f9910726925950433c87ec8599f63ca5fa8726620aa28d2580b9dc7ade4069ff",
+  "sequence_snapshot_manifest_sha256": "6a4568730d78e5d2c27f13560b118d765b3dd8b2ccbcd5dd744af4686b60ae79",
+  "figure_sha256": {
+    "contratos-win-contrato-mensal-v1.png": "5641000fa67f714fc3537e902e6efbac5e64064c77482856f1b436e06a1c8751",
+    "contratos-win-contrato-mensal-v1.pdf": "db4fc7d526086cf783b66b6472402c1ee74465ce7496a6a3e62d9f9c6d8af97b",
+    "contratos-win-contrato-mensal-v1.csv": "3b12a04964df0f0c743522a0b2a12932283883b8d6c78df5ad233cc5085d92df"
+  },
+  "parquet_sha256": {
+    "market_candles.parquet": "1430e2f0139e1c2f68cc6a5acef957a4acb13f1f8a7dfeff19805a83032a15d2",
+    "b0_targets_retrospective.parquet": "1d0d782da82589c7515fe8ad85c57e972a4830c02d314232df8b884a6244394f"
+  },
+  "source_hashes": {
+    "price1": "32cadf06387ae172edc804804fe762ef26f9f0928424ee83ce9e37a848389eab",
+    "trend_5m,trend_10m,trend_15m": "2d8c18c8d1a46be788ee2810a9caba043c2413102e4ee4f5c9927646037ce4c8"
+  },
+  "coverage_by_month_contract": [
+    {
+      "month": "2026-01",
+      "instrument": "WING26",
+      "expected_regular_sessions": 21,
+      "coverage_audit_sessions": 21,
+      "sessions_with_any_80pct_window": 21,
+      "sessions_without_source_candles": 0,
+      "observed_candles": 11106,
+      "label_rows": 11106
+    },
+    {
+      "month": "2026-02",
+      "instrument": "WINJ26",
+      "expected_regular_sessions": 17,
+      "coverage_audit_sessions": 17,
+      "sessions_with_any_80pct_window": 17,
+      "sessions_without_source_candles": 0,
+      "observed_candles": 8989,
+      "label_rows": 8989
+    },
+    {
+      "month": "2026-03",
+      "instrument": "WINJ26",
+      "expected_regular_sessions": 22,
+      "coverage_audit_sessions": 22,
+      "sessions_with_any_80pct_window": 22,
+      "sessions_without_source_candles": 0,
+      "observed_candles": 11428,
+      "label_rows": 11428
+    },
+    {
+      "month": "2026-04",
+      "instrument": "WINM26",
+      "expected_regular_sessions": 20,
+      "coverage_audit_sessions": 20,
+      "sessions_with_any_80pct_window": 20,
+      "sessions_without_source_candles": 0,
+      "observed_candles": 10375,
+      "label_rows": 10375
+    },
+    {
+      "month": "2026-05",
+      "instrument": "WINM26",
+      "expected_regular_sessions": 20,
+      "coverage_audit_sessions": 20,
+      "sessions_with_any_80pct_window": 17,
+      "sessions_without_source_candles": 3,
+      "observed_candles": 9160,
+      "label_rows": 9160
+    }
+  ],
+  "market_rows": 51058,
+  "target_rows": 51058,
+  "common_complete_prediction_samples_60m_48": 44925,
+  "contracts": [
+    "WING26",
+    "WINJ26",
+    "WINM26"
+  ],
+  "features_preserved": "21 OHLCV-derived causal features; 60-minute window, minimum 48 candles",
+  "label_distributions": {
+    "5m": {
+      "non_null_rows": 50989,
+      "classes": {
+        "0": 25129,
+        "1": 25860
+      },
+      "accepted_prediction_samples_60m_48": 45183,
+      "accepted_classes": {
+        "0": 22335,
+        "1": 22848
+      },
+      "accepted_common_three_targets": 44925,
+      "common_classes": {
+        "0": 22207,
+        "1": 22718
+      },
+      "by_contract": {
+        "WING26": {
+          "non_null_rows": 11088,
+          "classes": {
+            "0": 5267,
+            "1": 5821
+          },
+          "accepted_samples": 9873,
+          "accepted_classes": {
+            "0": 4681,
+            "1": 5192
+          }
+        },
+        "WINJ26": {
+          "non_null_rows": 20391,
+          "classes": {
+            "0": 10003,
+            "1": 10388
+          },
+          "accepted_samples": 18059,
+          "accepted_classes": {
+            "0": 8833,
+            "1": 9226
+          }
+        },
+        "WINM26": {
+          "non_null_rows": 19510,
+          "classes": {
+            "0": 9859,
+            "1": 9651
+          },
+          "accepted_samples": 17251,
+          "accepted_classes": {
+            "0": 8821,
+            "1": 8430
+          }
+        }
+      },
+      "by_month": {
+        "2026-01": {
+          "non_null_rows": 11088,
+          "classes": {
+            "0": 5267,
+            "1": 5821
+          },
+          "accepted_samples": 9873,
+          "accepted_classes": {
+            "0": 4681,
+            "1": 5192
+          }
+        },
+        "2026-02": {
+          "non_null_rows": 8978,
+          "classes": {
+            "0": 4271,
+            "1": 4707
+          },
+          "accepted_samples": 7916,
+          "accepted_classes": {
+            "0": 3731,
+            "1": 4185
+          }
+        },
+        "2026-03": {
+          "non_null_rows": 11413,
+          "classes": {
+            "0": 5732,
+            "1": 5681
+          },
+          "accepted_samples": 10143,
+          "accepted_classes": {
+            "0": 5102,
+            "1": 5041
+          }
+        },
+        "2026-04": {
+          "non_null_rows": 10360,
+          "classes": {
+            "0": 5149,
+            "1": 5211
+          },
+          "accepted_samples": 9084,
+          "accepted_classes": {
+            "0": 4581,
+            "1": 4503
+          }
+        },
+        "2026-05": {
+          "non_null_rows": 9150,
+          "classes": {
+            "0": 4710,
+            "1": 4440
+          },
+          "accepted_samples": 8167,
+          "accepted_classes": {
+            "0": 4240,
+            "1": 3927
+          }
+        }
+      }
+    },
+    "10m": {
+      "non_null_rows": 50866,
+      "classes": {
+        "0": 25317,
+        "1": 25549
+      },
+      "accepted_prediction_samples_60m_48": 45071,
+      "accepted_classes": {
+        "0": 22584,
+        "1": 22487
+      },
+      "accepted_common_three_targets": 44925,
+      "common_classes": {
+        "0": 22499,
+        "1": 22426
+      },
+      "by_contract": {
+        "WING26": {
+          "non_null_rows": 11065,
+          "classes": {
+            "0": 5308,
+            "1": 5757
+          },
+          "accepted_samples": 9850,
+          "accepted_classes": {
+            "0": 4768,
+            "1": 5082
+          }
+        },
+        "WINJ26": {
+          "non_null_rows": 20339,
+          "classes": {
+            "0": 10061,
+            "1": 10278
+          },
+          "accepted_samples": 18007,
+          "accepted_classes": {
+            "0": 8905,
+            "1": 9102
+          }
+        },
+        "WINM26": {
+          "non_null_rows": 19462,
+          "classes": {
+            "0": 9948,
+            "1": 9514
+          },
+          "accepted_samples": 17214,
+          "accepted_classes": {
+            "0": 8911,
+            "1": 8303
+          }
+        }
+      },
+      "by_month": {
+        "2026-01": {
+          "non_null_rows": 11065,
+          "classes": {
+            "0": 5308,
+            "1": 5757
+          },
+          "accepted_samples": 9850,
+          "accepted_classes": {
+            "0": 4768,
+            "1": 5082
+          }
+        },
+        "2026-02": {
+          "non_null_rows": 8940,
+          "classes": {
+            "0": 4339,
+            "1": 4601
+          },
+          "accepted_samples": 7878,
+          "accepted_classes": {
+            "0": 3785,
+            "1": 4093
+          }
+        },
+        "2026-03": {
+          "non_null_rows": 11399,
+          "classes": {
+            "0": 5722,
+            "1": 5677
+          },
+          "accepted_samples": 10129,
+          "accepted_classes": {
+            "0": 5120,
+            "1": 5009
+          }
+        },
+        "2026-04": {
+          "non_null_rows": 10321,
+          "classes": {
+            "0": 5251,
+            "1": 5070
+          },
+          "accepted_samples": 9056,
+          "accepted_classes": {
+            "0": 4704,
+            "1": 4352
+          }
+        },
+        "2026-05": {
+          "non_null_rows": 9141,
+          "classes": {
+            "0": 4697,
+            "1": 4444
+          },
+          "accepted_samples": 8158,
+          "accepted_classes": {
+            "0": 4207,
+            "1": 3951
+          }
+        }
+      }
+    },
+    "15m": {
+      "non_null_rows": 50763,
+      "classes": {
+        "0": 25280,
+        "1": 25483
+      },
+      "accepted_prediction_samples_60m_48": 44968,
+      "accepted_classes": {
+        "0": 22411,
+        "1": 22557
+      },
+      "accepted_common_three_targets": 44925,
+      "common_classes": {
+        "0": 22384,
+        "1": 22541
+      },
+      "by_contract": {
+        "WING26": {
+          "non_null_rows": 11048,
+          "classes": {
+            "0": 5353,
+            "1": 5695
+          },
+          "accepted_samples": 9833,
+          "accepted_classes": {
+            "0": 4815,
+            "1": 5018
+          }
+        },
+        "WINJ26": {
+          "non_null_rows": 20302,
+          "classes": {
+            "0": 9973,
+            "1": 10329
+          },
+          "accepted_samples": 17970,
+          "accepted_classes": {
+            "0": 8714,
+            "1": 9256
+          }
+        },
+        "WINM26": {
+          "non_null_rows": 19413,
+          "classes": {
+            "0": 9954,
+            "1": 9459
+          },
+          "accepted_samples": 17165,
+          "accepted_classes": {
+            "0": 8882,
+            "1": 8283
+          }
+        }
+      },
+      "by_month": {
+        "2026-01": {
+          "non_null_rows": 11048,
+          "classes": {
+            "0": 5353,
+            "1": 5695
+          },
+          "accepted_samples": 9833,
+          "accepted_classes": {
+            "0": 4815,
+            "1": 5018
+          }
+        },
+        "2026-02": {
+          "non_null_rows": 8934,
+          "classes": {
+            "0": 4337,
+            "1": 4597
+          },
+          "accepted_samples": 7872,
+          "accepted_classes": {
+            "0": 3743,
+            "1": 4129
+          }
+        },
+        "2026-03": {
+          "non_null_rows": 11368,
+          "classes": {
+            "0": 5636,
+            "1": 5732
+          },
+          "accepted_samples": 10098,
+          "accepted_classes": {
+            "0": 4971,
+            "1": 5127
+          }
+        },
+        "2026-04": {
+          "non_null_rows": 10302,
+          "classes": {
+            "0": 5135,
+            "1": 5167
+          },
+          "accepted_samples": 9037,
+          "accepted_classes": {
+            "0": 4544,
+            "1": 4493
+          }
+        },
+        "2026-05": {
+          "non_null_rows": 9111,
+          "classes": {
+            "0": 4819,
+            "1": 4292
+          },
+          "accepted_samples": 8128,
+          "accepted_classes": {
+            "0": 4338,
+            "1": 3790
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Counts describe retrospective source coverage and do not establish real-time vintage availability.",
+    "B0 release/confirmation time is not observed; the training pipeline uses the documented simulated post-session policy.",
+    "Monthly coverage gate is a selection criterion; individual prediction anchors still require 48 of 60 candles."
+  ],
+  "sequence_snapshot_manifest_copy": "sequence_snapshot_manifest.json"
+}

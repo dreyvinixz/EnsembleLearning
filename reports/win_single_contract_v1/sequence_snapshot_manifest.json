@@ -1,0 +1,61 @@
+{
+  "dataset_id": "win_2026_single_contract_sequence_jan_may_v1",
+  "status": "development_context_and_retrospective_targets",
+  "snapshot": "win_2026_single_contract_sequence_jan_may_v1.csv",
+  "snapshot_sha256": "f9910726925950433c87ec8599f63ca5fa8726620aa28d2580b9dc7ade4069ff",
+  "source_manifest_sha256": "df8a55993ec342ad3a9143302d6d4f97ed72ed730a738e846d85c82857191961",
+  "market_source_sha256": "1430e2f0139e1c2f68cc6a5acef957a4acb13f1f8a7dfeff19805a83032a15d2",
+  "label_source_sha256": "1d0d782da82589c7515fe8ad85c57e972a4830c02d314232df8b884a6244394f",
+  "source_period": {
+    "start": "2026-01-02",
+    "end": "2026-05-31"
+  },
+  "period": {
+    "start": "2026-01-02",
+    "end": "2026-05-29"
+  },
+  "rows": 51058,
+  "instruments": [
+    "WING26",
+    "WINJ26",
+    "WINM26"
+  ],
+  "features": [
+    "x_return_1bar",
+    "x_range_fraction",
+    "x_body_fraction",
+    "x_close_location",
+    "x_log_volume",
+    "x_log_business",
+    "x_average_close_gap",
+    "x_log_amount",
+    "x_return_5bars",
+    "x_return_15bars",
+    "x_return_30bars",
+    "x_return_60bars",
+    "x_return_volatility_5bars",
+    "x_close_vs_sma_5bars",
+    "x_return_volatility_15bars",
+    "x_close_vs_sma_15bars",
+    "x_return_volatility_30bars",
+    "x_close_vs_sma_30bars",
+    "x_return_volatility_60bars",
+    "x_close_vs_sma_60bars",
+    "x_log_volume_zscore_30bars"
+  ],
+  "targets": [
+    "y_5m",
+    "y_10m",
+    "y_15m"
+  ],
+  "label_non_null": {
+    "y_5m": 50989,
+    "y_10m": 50866,
+    "y_15m": 50763
+  },
+  "context_policy": "All source candles in selected regular sessions are retained; prediction anchors must independently pass the causal 60-minute/48-candle gate.",
+  "window_policy": "Exact 60-minute clock grid ending at decision time; no cross-contract/session history; absent candles represented by a mask.",
+  "feature_policy": "OHLCV-derived features use current closed candle and prior same-session candles only; labels and label metadata are not features.",
+  "label_availability": "Conservative simulated post-session release 18:02 local, not historically observed; whole-session label intervals are purged.",
+  "test_policy": "The source database extraction and Parquet base are capped at May 31; June prices and B0 labels are not queried or read."
+}

@@ -1,0 +1,26 @@
+{
+  "protocol_id": "win_single_contract_monthly_v1",
+  "rule": "one contract for the full target month; expiry on/after last regular session; at least 25% of previous month's regular sessions have a causal 60-minute window with >=48 closed candles; rank eligible contracts by previous-month BovDB volume, then business count, then ticker",
+  "january": "WING26 fixed by explicit study-owner decision; December historical coverage evidence unavailable, so the 25% gate cannot be independently verified for January",
+  "availability_warning": "Historical source aggregation is retrospective and does not prove that the source vintage was available before each target month. B0 confirmation/processing timestamps are unobserved.",
+  "selection_uses_mcc": false,
+  "intramonth_replacement": false,
+  "month_schedule_includes_june_dates_only": "calendar schedule derived from May evidence; no June source data queried",
+  "source": {
+    "path": "data\\b3_win\\evidencia-selecao-mensal-2026.csv",
+    "sha256": "ff623a3525be744f09da45fa0dd6c6fd4d7272dc2a15bbe81b70aece7b03cdd0"
+  },
+  "outputs": {
+    "candidate_ranking.csv": "bd0d000d719404beecc5c131f13ed69217f4f3e25e1853a7199eac72e0e92eae",
+    "monthly_schedule.csv": "f3b9f029babce94353408929ef9cd9dfd6d0a17cf0ce2914878ee954a1841b44"
+  },
+  "monthly_selection": {
+    "2026-01": "WING26",
+    "2026-02": "WINJ26",
+    "2026-03": "WINJ26",
+    "2026-04": "WINM26",
+    "2026-05": "WINM26",
+    "2026-06": "WINQ26"
+  },
+  "volume_metric": "Previous-month price1 volume, ranked within BovDB; equivalence of units to B3 BDI volume is unresolved"
+}

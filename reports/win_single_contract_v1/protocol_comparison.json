@@ -1,0 +1,536 @@
+{
+  "period": "through 2026-05-31 only; June not read",
+  "old_protocol": {
+    "sha256": "410ccbf212204b94d4705b83ec6813974e0bd2460a26deaa4aec84fed1826219",
+    "rows": 73399,
+    "date_range": [
+      "2026-01-02",
+      "2026-05-29"
+    ],
+    "contracts": [
+      "WING26",
+      "WINJ26",
+      "WINM26",
+      "WINQ26"
+    ],
+    "contracts_by_month": {
+      "2026-01": [
+        "WING26",
+        "WINJ26"
+      ],
+      "2026-02": [
+        "WING26",
+        "WINJ26"
+      ],
+      "2026-03": [
+        "WINJ26",
+        "WINM26"
+      ],
+      "2026-04": [
+        "WINJ26",
+        "WINM26"
+      ],
+      "2026-05": [
+        "WINM26",
+        "WINQ26"
+      ]
+    },
+    "session_dates_by_month": {
+      "2026-01": 21,
+      "2026-02": 17,
+      "2026-03": 22,
+      "2026-04": 20,
+      "2026-05": 17
+    },
+    "common_three_target_samples": 63517,
+    "common_samples_by_month": {
+      "2026-01": 12970,
+      "2026-02": 11623,
+      "2026-03": 16291,
+      "2026-04": 12514,
+      "2026-05": 10119
+    },
+    "scale_samples": {
+      "y_5m": {
+        "samples": 63517,
+        "classes": {
+          "0": 31463,
+          "1": 32054
+        },
+        "by_month": {
+          "2026-01": {
+            "samples": 12970,
+            "classes": {
+              "0": 6166,
+              "1": 6804
+            }
+          },
+          "2026-02": {
+            "samples": 11623,
+            "classes": {
+              "0": 5508,
+              "1": 6115
+            }
+          },
+          "2026-03": {
+            "samples": 16291,
+            "classes": {
+              "0": 8252,
+              "1": 8039
+            }
+          },
+          "2026-04": {
+            "samples": 12514,
+            "classes": {
+              "0": 6321,
+              "1": 6193
+            }
+          },
+          "2026-05": {
+            "samples": 10119,
+            "classes": {
+              "0": 5216,
+              "1": 4903
+            }
+          }
+        },
+        "by_contract": {
+          "WING26": {
+            "samples": 13495,
+            "classes": {
+              "0": 6412,
+              "1": 7083
+            }
+          },
+          "WINJ26": {
+            "samples": 24716,
+            "classes": {
+              "0": 12116,
+              "1": 12600
+            }
+          },
+          "WINM26": {
+            "samples": 22693,
+            "classes": {
+              "0": 11582,
+              "1": 11111
+            }
+          },
+          "WINQ26": {
+            "samples": 2613,
+            "classes": {
+              "0": 1353,
+              "1": 1260
+            }
+          }
+        }
+      },
+      "y_10m": {
+        "samples": 63517,
+        "classes": {
+          "0": 31885,
+          "1": 31632
+        },
+        "by_month": {
+          "2026-01": {
+            "samples": 12970,
+            "classes": {
+              "0": 6253,
+              "1": 6717
+            }
+          },
+          "2026-02": {
+            "samples": 11623,
+            "classes": {
+              "0": 5641,
+              "1": 5982
+            }
+          },
+          "2026-03": {
+            "samples": 16291,
+            "classes": {
+              "0": 8336,
+              "1": 7955
+            }
+          },
+          "2026-04": {
+            "samples": 12514,
+            "classes": {
+              "0": 6413,
+              "1": 6101
+            }
+          },
+          "2026-05": {
+            "samples": 10119,
+            "classes": {
+              "0": 5242,
+              "1": 4877
+            }
+          }
+        },
+        "by_contract": {
+          "WING26": {
+            "samples": 13495,
+            "classes": {
+              "0": 6540,
+              "1": 6955
+            }
+          },
+          "WINJ26": {
+            "samples": 24716,
+            "classes": {
+              "0": 12191,
+              "1": 12525
+            }
+          },
+          "WINM26": {
+            "samples": 22693,
+            "classes": {
+              "0": 11755,
+              "1": 10938
+            }
+          },
+          "WINQ26": {
+            "samples": 2613,
+            "classes": {
+              "0": 1399,
+              "1": 1214
+            }
+          }
+        }
+      },
+      "y_15m": {
+        "samples": 63517,
+        "classes": {
+          "0": 31734,
+          "1": 31783
+        },
+        "by_month": {
+          "2026-01": {
+            "samples": 12970,
+            "classes": {
+              "0": 6364,
+              "1": 6606
+            }
+          },
+          "2026-02": {
+            "samples": 11623,
+            "classes": {
+              "0": 5589,
+              "1": 6034
+            }
+          },
+          "2026-03": {
+            "samples": 16291,
+            "classes": {
+              "0": 8216,
+              "1": 8075
+            }
+          },
+          "2026-04": {
+            "samples": 12514,
+            "classes": {
+              "0": 6187,
+              "1": 6327
+            }
+          },
+          "2026-05": {
+            "samples": 10119,
+            "classes": {
+              "0": 5378,
+              "1": 4741
+            }
+          }
+        },
+        "by_contract": {
+          "WING26": {
+            "samples": 13495,
+            "classes": {
+              "0": 6575,
+              "1": 6920
+            }
+          },
+          "WINJ26": {
+            "samples": 24716,
+            "classes": {
+              "0": 12024,
+              "1": 12692
+            }
+          },
+          "WINM26": {
+            "samples": 22693,
+            "classes": {
+              "0": 11715,
+              "1": 10978
+            }
+          },
+          "WINQ26": {
+            "samples": 2613,
+            "classes": {
+              "0": 1420,
+              "1": 1193
+            }
+          }
+        }
+      }
+    }
+  },
+  "new_protocol": {
+    "sha256": "f9910726925950433c87ec8599f63ca5fa8726620aa28d2580b9dc7ade4069ff",
+    "rows": 51058,
+    "date_range": [
+      "2026-01-02",
+      "2026-05-29"
+    ],
+    "contracts": [
+      "WING26",
+      "WINJ26",
+      "WINM26"
+    ],
+    "contracts_by_month": {
+      "2026-01": [
+        "WING26"
+      ],
+      "2026-02": [
+        "WINJ26"
+      ],
+      "2026-03": [
+        "WINJ26"
+      ],
+      "2026-04": [
+        "WINM26"
+      ],
+      "2026-05": [
+        "WINM26"
+      ]
+    },
+    "session_dates_by_month": {
+      "2026-01": 21,
+      "2026-02": 17,
+      "2026-03": 22,
+      "2026-04": 20,
+      "2026-05": 17
+    },
+    "common_three_target_samples": 44925,
+    "common_samples_by_month": {
+      "2026-01": 9826,
+      "2026-02": 7858,
+      "2026-03": 10091,
+      "2026-04": 9029,
+      "2026-05": 8121
+    },
+    "scale_samples": {
+      "y_5m": {
+        "samples": 45183,
+        "classes": {
+          "0": 22335,
+          "1": 22848
+        },
+        "by_month": {
+          "2026-01": {
+            "samples": 9873,
+            "classes": {
+              "0": 4681,
+              "1": 5192
+            }
+          },
+          "2026-02": {
+            "samples": 7916,
+            "classes": {
+              "0": 3731,
+              "1": 4185
+            }
+          },
+          "2026-03": {
+            "samples": 10143,
+            "classes": {
+              "0": 5102,
+              "1": 5041
+            }
+          },
+          "2026-04": {
+            "samples": 9084,
+            "classes": {
+              "0": 4581,
+              "1": 4503
+            }
+          },
+          "2026-05": {
+            "samples": 8167,
+            "classes": {
+              "0": 4240,
+              "1": 3927
+            }
+          }
+        },
+        "by_contract": {
+          "WING26": {
+            "samples": 9873,
+            "classes": {
+              "0": 4681,
+              "1": 5192
+            }
+          },
+          "WINJ26": {
+            "samples": 18059,
+            "classes": {
+              "0": 8833,
+              "1": 9226
+            }
+          },
+          "WINM26": {
+            "samples": 17251,
+            "classes": {
+              "0": 8821,
+              "1": 8430
+            }
+          }
+        }
+      },
+      "y_10m": {
+        "samples": 45071,
+        "classes": {
+          "0": 22584,
+          "1": 22487
+        },
+        "by_month": {
+          "2026-01": {
+            "samples": 9850,
+            "classes": {
+              "0": 4768,
+              "1": 5082
+            }
+          },
+          "2026-02": {
+            "samples": 7878,
+            "classes": {
+              "0": 3785,
+              "1": 4093
+            }
+          },
+          "2026-03": {
+            "samples": 10129,
+            "classes": {
+              "0": 5120,
+              "1": 5009
+            }
+          },
+          "2026-04": {
+            "samples": 9056,
+            "classes": {
+              "0": 4704,
+              "1": 4352
+            }
+          },
+          "2026-05": {
+            "samples": 8158,
+            "classes": {
+              "0": 4207,
+              "1": 3951
+            }
+          }
+        },
+        "by_contract": {
+          "WING26": {
+            "samples": 9850,
+            "classes": {
+              "0": 4768,
+              "1": 5082
+            }
+          },
+          "WINJ26": {
+            "samples": 18007,
+            "classes": {
+              "0": 8905,
+              "1": 9102
+            }
+          },
+          "WINM26": {
+            "samples": 17214,
+            "classes": {
+              "0": 8911,
+              "1": 8303
+            }
+          }
+        }
+      },
+      "y_15m": {
+        "samples": 44968,
+        "classes": {
+          "0": 22411,
+          "1": 22557
+        },
+        "by_month": {
+          "2026-01": {
+            "samples": 9833,
+            "classes": {
+              "0": 4815,
+              "1": 5018
+            }
+          },
+          "2026-02": {
+            "samples": 7872,
+            "classes": {
+              "0": 3743,
+              "1": 4129
+            }
+          },
+          "2026-03": {
+            "samples": 10098,
+            "classes": {
+              "0": 4971,
+              "1": 5127
+            }
+          },
+          "2026-04": {
+            "samples": 9037,
+            "classes": {
+              "0": 4544,
+              "1": 4493
+            }
+          },
+          "2026-05": {
+            "samples": 8128,
+            "classes": {
+              "0": 4338,
+              "1": 3790
+            }
+          }
+        },
+        "by_contract": {
+          "WING26": {
+            "samples": 9833,
+            "classes": {
+              "0": 4815,
+              "1": 5018
+            }
+          },
+          "WINJ26": {
+            "samples": 17970,
+            "classes": {
+              "0": 8714,
+              "1": 9256
+            }
+          },
+          "WINM26": {
+            "samples": 17165,
+            "classes": {
+              "0": 8882,
+              "1": 8283
+            }
+          }
+        }
+      }
+    }
+  },
+  "common_sample_change": {
+    "absolute": -18592,
+    "fraction": -0.292709,
+    "interpretation": "population/coverage change only; no model performance comparison was run"
+  },
+  "caveats": [
+    "The old input is the retained historical Jan-May development CSV; it is not rewritten.",
+    "Anchor counts apply the same causal 60-minute window and 48-candle minimum to both CSVs.",
+    "Metrics of model performance require rerunning every method on the same frozen population."
+  ]
+}

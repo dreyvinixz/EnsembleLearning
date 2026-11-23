@@ -1,5 +1,35 @@
 # Protocolo experimental inicial
 
+## Emenda de população: um contrato WIN por mês
+
+Esta emenda fixa janeiro WING26, fevereiro WINJ26, março WINJ26, abril WINM26,
+maio WINM26 e junho WINQ26. O legado e seus snapshots, manifests e resultados
+permanecem preservados. O seletor e evidências versionados estão em
+`reports/win_single_contract_v1/`; MCC, alvos e resultados de modelo não entram
+na seleção e não há substituição intramensal.
+
+De fevereiro a junho, a elegibilidade exige vigência durante todos os pregões
+regulares do mês-alvo, janela causal de 60 minutos com pelo menos 48 candles em
+ao menos 25% dos pregões regulares do mês anterior e volume anterior positivo e
+completo. O ranking é pelo volume anterior, com desempate por negócios e ticker.
+Janeiro WING26 foi fixado explicitamente pelo responsável; como não há cobertura
+local de dezembro, o gate de 25% de janeiro não pôde ser verificado. A seleção
+dos demais meses também é reconstrução retrospectiva e não prova disponibilidade
+de listagem, volume ou vintage em tempo real. O volume é `price1.volume` do
+BovDB, ordenado dentro dessa fonte; a equivalência das unidades com B3 BDI segue
+sem resolução.
+
+O novo snapshot de treino consulta janeiro–maio, com extração encerrada em
+31/05/2026. Junho não faz parte do snapshot nem da auditoria de amostras; a
+figura científica exibe WINQ26 em junho usando a cobertura já disponível da
+fonte visual (21 pregões com ao menos uma janela). Métricas de modelo não foram
+reexecutadas nesta emenda.
+
+Comparações com o legado devem reportar população completa e pareamento por
+contrato, pregão, instante e escala. Diferenças de desempenho podem refletir
+mudanças em cobertura, suporte e mistura de contratos. O MCC não pode orientar
+a seleção do contrato mensal.
+
 ## Correspondência entre objetivo e implementação atual
 
 O alvo implementado é a classe retrospectiva B0 observada em cada instante de
