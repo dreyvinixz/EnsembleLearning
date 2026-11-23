@@ -41,14 +41,17 @@ def _neural_development_frame():
     return pd.DataFrame(rows)
 
 
+@pytest.mark.parametrize("architecture", ["mlp", "cnn1d", "lstm", "gru"])
 @pytest.mark.parametrize("strategy", ["independent", "mtl"])
-def test_neural_walk_forward_records_b0_predictions_and_artifacts(tmp_path, strategy):
+def test_neural_walk_forward_records_b0_predictions_and_artifacts(
+    tmp_path, architecture, strategy,
+):
     raw = _neural_development_frame()
     data_path = tmp_path / "development.csv"
     raw.to_csv(data_path, index=False)
     frame = validate_sequence_frame(pd.read_csv(data_path))
     output = run_neural_experiment(
-        frame, architecture="mlp", strategy=strategy, data_path=data_path,
+        frame, architecture=architecture, strategy=strategy, data_path=data_path,
         results_root=tmp_path / "results", seed=17, device_name="cpu",
         epochs=1, patience=1, batch_size=16, hidden_size=4,
     )
@@ -61,6 +64,9 @@ def test_neural_walk_forward_records_b0_predictions_and_artifacts(tmp_path, stra
     assert required <= {path.name for path in output.iterdir()}
     predictions = pd.read_parquet(output / "predictions.parquet")
     manifest = __import__("json").loads((output / "manifest.json").read_text())
+    training_summary = __import__("json").loads(
+        (output / "training_summary.json").read_text()
+    )
     assert set(predictions.scale) == {"5m", "10m", "15m"}
     assert set(predictions.fold) == {"fold01", "fold02", "fold03", "fold04"}
     assert predictions.session_date.astype(str).max() <= "2026-05-31"
@@ -69,8 +75,39 @@ def test_neural_walk_forward_records_b0_predictions_and_artifacts(tmp_path, stra
     assert predictions.p_down.between(0, 1).all()
     assert manifest["test_june_accessed"] is False
     assert manifest["target_columns_used_as_features"] is False
+    assert all(
+        fit["train_end"] < fit["inner_validation_start"]
+        <= fit["inner_validation_end"] < fit["oof_start"]
+        for fit in training_summary["fold_fits"]
+    )
     assert len(list((output / "checkpoints").glob("*_best.pt"))) == (
         12 if strategy == "independent" else 4
+    )
+
+
+def test_same_seed_reproduces_and_pairs_independent_with_mtl(tmp_path):
+    raw = _neural_development_frame()
+    data_path = tmp_path / "development.csv"
+    raw.to_csv(data_path, index=False)
+    frame = validate_sequence_frame(pd.read_csv(data_path))
+    outputs = {}
+    for strategy in ("independent", "mtl", "independent"):
+        outputs[strategy, len(outputs)] = run_neural_experiment(
+            frame, architecture="mlp", strategy=strategy, data_path=data_path,
+            results_root=tmp_path / "results", seed=29, device_name="cpu",
+            epochs=1, patience=1, batch_size=16, hidden_size=4,
+        )
+    first = pd.read_parquet(outputs[("independent", 0)] / "predictions.parquet")
+    joint = pd.read_parquet(outputs[("mtl", 1)] / "predictions.parquet")
+    repeat = pd.read_parquet(outputs[("independent", 2)] / "predictions.parquet")
+    keys = ["sample_id", "fold", "scale", "seed"]
+    assert first.sort_values(keys)[keys].reset_index(drop=True).equals(
+        joint.sort_values(keys)[keys].reset_index(drop=True)
+    )
+    pd.testing.assert_series_equal(
+        first.sort_values(keys).p_up.reset_index(drop=True),
+        repeat.sort_values(keys).p_up.reset_index(drop=True),
+        check_exact=True,
     )
 
 
