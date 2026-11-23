@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 
 from ensemble_learning.contracts import latest_label_confirmation, validate_frame
